@@ -6,5 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gtk4 = "0.7.3"
-gtk4-layer-shell = "0.2.0"
+anyhow = "1.0.78"
+chrono = "0.4.31"
+const_format = "0.2.32"
+env_logger = "0.10.1"
+gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
+gtk-layer-shell = { version = "0.2.0", package = "gtk4-layer-shell" }
+log = "0.4.20"

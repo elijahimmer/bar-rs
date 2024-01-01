@@ -1,57 +1,86 @@
-use std::time::Duration;
+use crate::util::{read_f64, read_trim};
 
+use const_format::concatcp;
 use gtk::prelude::*;
 use gtk::{glib, Align, Button, Fixed, Label, Overflow};
+use std::time::Duration;
 
-static BUTTON_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
-static BATTERY_FOLDER: &str = "/sys/class/power_supply/BAT0";
+const BATTERY_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
+const BATTERY_CLAMP: f64 = (BATTERY_ICONS.len() - 1) as f64;
+const BATTERY_FOLDER: &str = "/sys/class/power_supply/BAT0";
+const ENERGY_FULL_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_full");
+const BATTERY_STATUS_FILE: &str = concatcp!(BATTERY_FOLDER, "/status");
+const ENERGY_NOW_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_now");
 
-pub fn button() -> Button {
+pub fn element() -> Option<Button> {
     let label = Label::builder()
-        .label(BUTTON_ICONS[0])
-        .css_classes(["battery_label"])
+        .label(BATTERY_ICONS[0])
+        .name("battery")
         .build();
 
     let charging_label = Label::builder()
         .label("󱐋")
         .visible(false)
-        .css_classes(["battery_charging_label"])
+        .name("battery_charging")
         .build();
 
-    let fixed = Fixed::builder().overflow(Overflow::Visible).build();
+    let fixed = Fixed::builder()
+        .overflow(Overflow::Visible)
+        .hexpand(false)
+        .width_request(25)
+        .build();
 
     fixed.put(&label, 0.0, 0.0);
-    fixed.put(&charging_label, 0.0, 0.0);
+    fixed.put(&charging_label, 5.0, 0.0);
 
     let button = Button::builder()
         .child(&fixed)
         .valign(Align::Center)
         .halign(Align::Center)
         .hexpand(false)
-        .css_classes(["battery"])
         .build();
 
-    let full: f64 = std::fs::read_to_string(format!("{BATTERY_FOLDER}/energy_full"))
-        .expect("Battery not found")
-        .trim()
-        .parse::<usize>()
-        .expect("Battery full energy not parsable") as f64;
+    let full = match read_f64(ENERGY_FULL_FILE) {
+        Ok(f) => f,
+        Err(e) => {
+            log::warn!("Couldn't read battery's energy_full: {}", e);
+
+            return None;
+        }
+    };
 
     glib::timeout_add_local(Duration::from_millis(250), move || {
-        let s =
-            std::fs::read_to_string(format!("{BATTERY_FOLDER}/status")).expect("Battery not found");
+        let status = {
+            let s = match read_trim(BATTERY_STATUS_FILE) {
+                Ok(s) => s,
+                Err(e) => {
+                    log::warn!("Couldn't read battery status: {}", e);
 
-        let status = s.trim();
+                    return glib::ControlFlow::Break;
+                }
+            };
 
-        let energy: f64 = std::fs::read_to_string(format!("{BATTERY_FOLDER}/energy_now"))
-            .expect("Battery not found")
-            .trim()
-            .parse::<usize>()
-            .expect("Battery energy not parsable") as f64;
+            if s == "Not charging" {
+                "Full".to_owned()
+            } else {
+                s
+            }
+        };
 
-        let i = ((10.0 * energy / full - 1.0).round().clamp(0.0, 9.0)) as usize;
+        let energy = match read_f64(ENERGY_NOW_FILE) {
+            Ok(s) => s,
+            Err(e) => {
+                log::warn!("Couldn't read battery's energy_now: {}", e);
 
-        label.set_label(BUTTON_ICONS[i]);
+                return glib::ControlFlow::Break;
+            }
+        };
+
+        let i = (BATTERY_CLAMP * energy / full)
+            .round()
+            .clamp(0.0, BATTERY_CLAMP) as usize;
+
+        label.set_label(BATTERY_ICONS[i]);
         label.set_css_classes(&[&status]);
 
         charging_label.set_visible(status == "Charging");
@@ -59,5 +88,5 @@ pub fn button() -> Button {
         glib::ControlFlow::Continue
     });
 
-    button
+    Some(button)
 }
