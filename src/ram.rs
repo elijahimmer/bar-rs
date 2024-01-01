@@ -22,7 +22,6 @@ pub fn element() -> Option<Button> {
 
     let bar = LevelBar::builder()
         .name("ram-bar")
-        .visible(false)
         .max_value(100.0)
         .min_value(0.0)
         .mode(LevelBarMode::Continuous)
@@ -37,6 +36,7 @@ pub fn element() -> Option<Button> {
         .child(&base_box)
         .valign(Align::Center)
         .halign(Align::Center)
+        .visible(false)
         .build();
 
     let b2 = button.clone();

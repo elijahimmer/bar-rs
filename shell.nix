@@ -14,5 +14,6 @@ pkgs.mkShell {
     glib
     gtk4
     gtk4-layer-shell
+    openssl
   ];
 }

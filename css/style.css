@@ -15,32 +15,31 @@
 @define-color hl_high #403d52;
 
 * {
-	margin: 0px 4px 0px 4px;
 	color: @rose;
 	background: transparent;
+}
+
+#end-box .icon {
+	font-size: 20px;
+	margin: 0px 10px;
+}
+
+#end-box box {
+	margin: 0px 3px;
 }
 
 #clock {
 	font-family: mono;
 	font-size: 15px;
 	color: @rose;
-	margin: 0px;
 }
 
 #clock .spacer {
 	color: @foam;
+	margin: 0px 4px;
 }
 
-#end-box {
-	font-size: 20px;
-}
-
-#cpu * {
-	font-size: 10px;
-	color: @love;
-}
-
-#ram * {
+#cpu *, #ram * {
 	font-size: 10px;
 	color: @love;
 }
@@ -75,7 +74,6 @@
 trough {
 	min-height: 20px;
 	min-width: 10px;
-	margin: 0px;
 }
 
 trough block.filled { 

@@ -38,6 +38,7 @@ pub fn element() -> Option<Button> {
         .valign(Align::Center)
         .halign(Align::Center)
         .hexpand(false)
+        .css_classes(["icon"])
         .build();
 
     let full = match read_f64(ENERGY_FULL_FILE) {

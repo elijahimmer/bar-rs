@@ -14,7 +14,7 @@ pub fn element() -> Button {
 
     let spacing2 = Label::builder().css_classes(["spacer"]).label("").build();
 
-    let clock_box = Box::builder().homogeneous(true).build();
+    let clock_box = Box::new(gtk::Orientation::Horizontal, 0);
 
     clock_box.append(&hours_label);
     clock_box.append(&spacing1);

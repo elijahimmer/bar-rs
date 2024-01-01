@@ -36,6 +36,7 @@ pub fn element() -> Option<Button> {
         .child(&base_box)
         .valign(Align::Center)
         .halign(Align::Center)
+        .visible(false)
         .build();
 
     let b2 = button.clone();

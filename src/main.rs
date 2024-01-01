@@ -5,6 +5,7 @@ pub mod cpu;
 pub mod ram;
 pub mod util;
 pub mod volume;
+//pub mod wttr;
 
 use std::fs;
 use std::time::{Duration, SystemTime};
@@ -45,6 +46,8 @@ fn build_ui(app: &Application) {
     if let Some(b) = ram::element() {
         end_box.append(&b);
     }
+
+    end_box.append(&wttr::element());
 
     if let Some(b) = volume::element() {
         end_box.append(&b);

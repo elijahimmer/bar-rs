@@ -24,6 +24,7 @@ pub fn element() -> Option<Button> {
         .valign(Align::Center)
         .halign(Align::Center)
         .hexpand(false)
+        .css_classes(["icon"])
         .build();
 
     let full = match read_f64(MAX_BRIGHTNESS_FILE) {
@@ -38,25 +39,26 @@ pub fn element() -> Option<Button> {
         }
     };
 
-    let scroll_delta = full / 25.0;
+    let scroll_delta = full / 100.0;
 
     controller.connect_scroll(move |_controller, _dx, dy| {
         let current_brightness = match read_f64(BRIGHTNESS_FILE) {
             Ok(f) => f,
             Err(e) => {
-                log::warn!("Couldn't read Backlight's Current Brightness: {}", e);
+                log::warn!("Couldn't read Backlight's Current Brightness: {e}");
 
                 return glib::signal::Propagation::Stop;
             }
         };
 
-        match fs::write(
-            BRIGHTNESS_FILE,
-            format!("{}", current_brightness + scroll_delta * dy),
-        ) {
+        let brightness = format!(
+            "{}",
+            (current_brightness + scroll_delta * dy).clamp(0.0, full) as usize
+        );
+        match fs::write(BRIGHTNESS_FILE, &brightness) {
             Ok(f) => f,
             Err(e) => {
-                log::warn!("Couldn't set Backlight Brightness: {}", e.to_string());
+                log::warn!("Couldn't set Backlight Brightness: {e}, {brightness}");
 
                 return glib::signal::Propagation::Stop;
             }
