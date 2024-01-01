@@ -11,6 +11,7 @@ pkgs.mkShell {
     pkg-config
     pango
     graphene
+    glib
     gtk4
     gtk4-layer-shell
   ];

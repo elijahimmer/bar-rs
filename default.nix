@@ -17,8 +17,6 @@ in
       graphene
       glib
       glib.dev
-      glibc
-      glibc.dev
       gtk4
       gtk4-layer-shell
     ];

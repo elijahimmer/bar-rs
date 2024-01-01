@@ -15,7 +15,7 @@
 @define-color hl_high #403d52;
 
 * {
-	margin: 0px 1px 0px 2px;
+	margin: 0px 4px 0px 4px;
 	color: @rose;
 	background: transparent;
 }
@@ -32,7 +32,26 @@
 }
 
 #end-box {
+	font-size: 20px;
+}
+
+#cpu * {
+	font-size: 10px;
+	color: @love;
+}
+
+#ram * {
+	font-size: 10px;
+	color: @love;
+}
+
+#volume {
 	font-size: 21px;
+	color: @iris;
+}
+
+#volume.muted {
+	color: @love;
 }
 
 #brightness {
@@ -40,11 +59,11 @@
 }
 
 #battery {
-	color: @gold;
+	color: @pine;
 }
 
-#battery:not(.Full) {
-	color: @pine;
+#battery.Full {
+	color: @gold;
 }
 
 #battery_charging {
@@ -52,4 +71,20 @@
 	color: @gold;
 }
 
+/* Used for LevelBars, the cpu and memory usage bars */
+trough {
+	min-height: 20px;
+	min-width: 10px;
+	margin: 0px;
+}
+
+trough block.filled { 
+	background-color: @love;
+  border-radius: 0px 0px 3px 3px;
+}
+
+trough block { 
+	background-color: @pine;
+  border-radius: 3px;
+}
 

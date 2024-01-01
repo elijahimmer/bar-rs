@@ -1,7 +1,10 @@
 pub mod battery;
 pub mod brightness;
 pub mod clock;
+pub mod cpu;
+pub mod ram;
 pub mod util;
+pub mod volume;
 
 use std::fs;
 use std::time::{Duration, SystemTime};
@@ -17,7 +20,6 @@ fn main() -> glib::ExitCode {
     env_logger::Builder::from_env(
         env_logger::Env::default().filter_or(env_logger::DEFAULT_FILTER_ENV, "info"),
     )
-    .format_module_path(true)
     .format_timestamp_millis()
     .init();
 
@@ -34,10 +36,19 @@ fn main() -> glib::ExitCode {
 fn build_ui(app: &Application) {
     log::trace!("Initalizing Components");
 
-    let end_box = gtk::Box::builder()
-        .homogeneous(true)
-        .name("end-box")
-        .build();
+    let end_box = gtk::Box::builder().name("end-box").build();
+
+    if let Some(b) = cpu::element() {
+        end_box.append(&b);
+    }
+
+    if let Some(b) = ram::element() {
+        end_box.append(&b);
+    }
+
+    if let Some(b) = volume::element() {
+        end_box.append(&b);
+    }
 
     if let Some(b) = brightness::element() {
         end_box.append(&b);

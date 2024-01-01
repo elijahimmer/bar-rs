@@ -13,7 +13,7 @@ const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness")
 const BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/brightness");
 
 pub fn element() -> Option<Button> {
-    let label = Label::builder().label("").name("brightness").build();
+    let label = Label::builder().name("brightness").build();
 
     let controller = EventControllerScroll::builder()
         .flags(EventControllerScrollFlags::VERTICAL)
