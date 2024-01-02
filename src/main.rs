@@ -2,20 +2,16 @@ pub mod battery;
 pub mod brightness;
 pub mod clock;
 pub mod cpu;
+pub mod css;
 pub mod ram;
 pub mod util;
 pub mod volume;
 //pub mod wttr;
 
-use std::fs;
-use std::time::{Duration, SystemTime};
-
 use gtk::gdk::Display;
 use gtk::prelude::*;
-use gtk::{glib, Application, ApplicationWindow, CssProvider};
+use gtk::{glib, Application, ApplicationWindow};
 use gtk_layer_shell::LayerShell;
-
-static CSS_PATH: &str = "./css/style.css";
 
 fn main() -> glib::ExitCode {
     env_logger::Builder::from_env(
@@ -47,7 +43,7 @@ fn build_ui(app: &Application) {
         end_box.append(&b);
     }
 
-    end_box.append(&wttr::element());
+    //end_box.append(&wttr::element());
 
     if let Some(b) = volume::element() {
         end_box.append(&b);
@@ -83,41 +79,12 @@ fn build_ui(app: &Application) {
     window.set_anchor(gtk_layer_shell::Edge::Top, true);
     window.set_anchor(gtk_layer_shell::Edge::Bottom, false);
 
-    log::info!("Window presenting");
-    window.present();
-
-    log::info!("Loading CSS");
-    let css = CssProvider::new();
-    css.connect_parsing_error(|_provider, section, error| {
-        log::warn!(
-            "CSS failed to parse: {} : {}",
-            section.to_str(),
-            error.message()
-        );
-    });
-
     gtk::style_context_add_provider_for_display(
-        &Display::default().expect("Display not found... somehow"),
-        &css,
+        &Display::default().expect("Display not found."),
+        &css::css(),
         0,
     );
 
-    let mut last_modified = SystemTime::now();
-    css.load_from_path(CSS_PATH);
-
-    glib::timeout_add_local(Duration::from_secs(1), move || {
-        let modified = fs::metadata(&CSS_PATH)
-            .expect("CSS metadata unavailable")
-            .modified()
-            .expect("Cannot get file modified time");
-
-        if modified > last_modified {
-            last_modified = modified;
-
-            log::info!("Reloading CSS");
-            css.load_from_path(CSS_PATH);
-        }
-
-        glib::ControlFlow::Continue
-    });
+    log::info!("Window presenting");
+    window.present();
 }

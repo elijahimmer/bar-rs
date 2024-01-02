@@ -8,10 +8,9 @@ const MINIMUM_MEMORY_USAGE: f64 = 75.0;
 
 pub fn element() -> Option<Button> {
     if !sysinfo::IS_SUPPORTED_SYSTEM {
-        log::warn!("sysinfo does not support this system/os! RAM widget turned off.");
+        log::warn!("Widget Disabled: sysinfo does not support this system/os!");
         return None;
     };
-    log::trace!("System is supported by sysinfo, RAM widget enabled.");
 
     let refresh_kind = MemoryRefreshKind::new().with_ram();
     let mut ram_tracker = System::new();

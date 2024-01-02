@@ -8,10 +8,9 @@ const MINIMUM_CPU_USAGE: f32 = 75.0;
 
 pub fn element() -> Option<Button> {
     if !sysinfo::IS_SUPPORTED_SYSTEM {
-        log::warn!("sysinfo does not support this system/os! CPU widget turned off.");
+        log::warn!("Widget Disabled: sysinfo does not support this system/os!");
         return None;
     };
-    log::trace!("System is supported by sysinfo, CPU widget enabled.");
 
     let refresh_kind = CpuRefreshKind::new().with_cpu_usage();
     let mut cpu_tracker = System::new();

@@ -13,6 +13,17 @@ const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness")
 const BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/brightness");
 
 pub fn element() -> Option<Button> {
+    let full = match read_f64(MAX_BRIGHTNESS_FILE) {
+        Ok(f) => f,
+        Err(e) => {
+            log::warn!(
+                "Brightness Widget disabled: Couldn't read Backlight's Current Brightness: {e}",
+            );
+
+            return None;
+        }
+    };
+
     let label = Label::builder().name("brightness").build();
 
     let controller = EventControllerScroll::builder()
@@ -26,19 +37,6 @@ pub fn element() -> Option<Button> {
         .hexpand(false)
         .css_classes(["icon"])
         .build();
-
-    let full = match read_f64(MAX_BRIGHTNESS_FILE) {
-        Ok(f) => f,
-        Err(e) => {
-            log::warn!(
-                "Couldn't read Backlight's Current Brightness: {}",
-                e.to_string()
-            );
-
-            return None;
-        }
-    };
-
     let scroll_delta = full / 100.0;
 
     controller.connect_scroll(move |_controller, _dx, dy| {
@@ -55,13 +53,9 @@ pub fn element() -> Option<Button> {
             "{}",
             (current_brightness + scroll_delta * dy).clamp(0.0, full) as usize
         );
-        match fs::write(BRIGHTNESS_FILE, &brightness) {
-            Ok(f) => f,
-            Err(e) => {
-                log::warn!("Couldn't set Backlight Brightness: {e}, {brightness}");
 
-                return glib::signal::Propagation::Stop;
-            }
+        if let Err(e) = fs::write(BRIGHTNESS_FILE, &brightness) {
+            log::warn!("Couldn't set Backlight Brightness ({brightness}): {e}");
         };
 
         glib::signal::Propagation::Stop
