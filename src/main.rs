@@ -6,6 +6,7 @@ pub mod css;
 pub mod ram;
 pub mod util;
 pub mod volume;
+pub mod workspaces;
 //pub mod wttr;
 
 use gtk::gdk::Display;
@@ -43,8 +44,6 @@ fn build_ui(app: &Application) {
         end_box.append(&b);
     }
 
-    //end_box.append(&wttr::element());
-
     if let Some(b) = volume::element() {
         end_box.append(&b);
     }
@@ -57,8 +56,17 @@ fn build_ui(app: &Application) {
         end_box.append(&b);
     };
 
+    let start_wgt = match workspaces::element() {
+        Ok(w) => w,
+        Err(e) => {
+            log::error!("Failed to create workspaces widget: {e}");
+
+            gtk::Box::builder().build()
+        }
+    };
+
     let main_box = gtk::CenterBox::builder()
-        //.start_widget()
+        .start_widget(&start_wgt)
         .center_widget(&clock::element())
         .end_widget(&end_box)
         .build();

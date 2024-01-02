@@ -53,4 +53,3 @@ pub fn css() -> CssProvider {
 
     css
 }
-

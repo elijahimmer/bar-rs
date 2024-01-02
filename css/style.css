@@ -19,13 +19,13 @@
 	background: transparent;
 }
 
-#end-box .icon {
-	font-size: 20px;
-	margin: 0px 10px;
+#workspaces button {
+	margin: 0px 3px;
+	padding: 0px 6px;
 }
 
-#end-box box {
-	margin: 0px 3px;
+#workspaces .active-workspace {
+	background-color: @pine;
 }
 
 #clock {
@@ -37,6 +37,15 @@
 #clock .spacer {
 	color: @foam;
 	margin: 0px 4px;
+}
+
+#end-box .icon {
+	font-size: 20px;
+	margin: 0px 10px;
+}
+
+#end-box box {
+	margin: 0px 3px;
 }
 
 #cpu *, #ram * {
