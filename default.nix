@@ -1,24 +1,37 @@
-{lib, pkgs ? import <nixpkgs> {}}: let
+{
+  lib,
+  glib,
+  cargo,
+  rustc,
+  pkg-config,
+  gtk4,
+  pango,
+  graphene,
+  gtk4-layer-shell,
+  openssl,
+  pkgs ? import <nixpkgs> {},
+}: let
   manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
 in
-  pkgs.rustPlatform.buildRustPackage rec {
+  pkgs.rustPlatform.buildRustPackage {
     pname = manifest.name;
     version = manifest.version;
     cargoLock.lockFile = ./Cargo.lock;
     src = pkgs.lib.cleanSource ./.;
 
-
-    nativeBuildInputs = with pkgs; [
+    nativeBuildInputs = [
       cargo
-      cairo
       rustc
       pkg-config
+    ];
+
+    BuildInputs = [
       pango
       graphene
       glib
-      glib.dev
       gtk4
       gtk4-layer-shell
+      openssl
     ];
 
     meta = with lib; {

@@ -7,7 +7,6 @@ edition = "2021"
 dynamic_css = []
 
 [profile.release]
-opt-level = 3
 strip = true
 lto = true
 
