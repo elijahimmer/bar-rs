@@ -124,9 +124,11 @@ pub fn element() -> Result<Box> {
             message = &m[..j];
             args = &m[(j + 2)..];
 
+            // log::trace!("Hyprland Message: {m}");
+
             match parse_message(message, args).unwrap() {
                 Event::Workspace(i) => {
-                    //log::debug!("Switching Workspace: i={i}");
+                    log::debug!("Switching Workspace: i={i}");
                     active_workspace.1.set_css_classes(&[]);
                     match workspaces.binary_search_by_key(&i, |w| w.0) {
                         Ok(j) => {
@@ -143,10 +145,9 @@ pub fn element() -> Result<Box> {
                                 .1
                                 .set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
 
-                            work_box.insert_child_after(
-                                &active_workspace.1,
-                                Some(&workspaces[j - 1].1),
-                            );
+                            let wk = j.checked_sub(1).map(|k| &workspaces[k].1);
+
+                            work_box.insert_child_after(&active_workspace.1, wk);
                             workspaces.insert(j, active_workspace.clone());
                         }
                     };
@@ -154,20 +155,22 @@ pub fn element() -> Result<Box> {
                 Event::CreateWorkspace(i) => match workspaces.binary_search_by_key(&i, |w| w.0) {
                     Ok(_j) => { /*Workspace already exists, so don't do anything*/ }
                     Err(j) => {
-                        //log::debug!("Creating Workspace: i={i} j={j}");
+                        log::debug!("Creating Workspace: i={i} j={j}");
                         let nwk = create_workspace(i);
 
                         if nwk.0 == active_workspace.0 {
                             nwk.1.set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
                         }
 
-                        work_box.insert_child_after(&nwk.1, Some(&workspaces[j - 1].1));
+                        let wk = j.checked_sub(1).map(|k| &workspaces[k].1);
+
+                        work_box.insert_child_after(&nwk.1, wk);
                         workspaces.insert(j, nwk);
                     }
                 },
                 Event::DestroyWorkspace(i) => match workspaces.binary_search_by_key(&i, |w| w.0) {
                     Ok(j) => {
-                        //log::debug!("Destroying Workspace: i={i}, j={j}");
+                        log::debug!("Destroying Workspace: i={i}, j={j}");
                         let (_, wk) = workspaces.remove(j);
                         work_box.remove(&wk);
                     }
