@@ -1,5 +1,6 @@
 use crate::util::{read_f64, read_trim};
 
+use anyhow::Result;
 use const_format::concatcp;
 use gtk::prelude::*;
 use gtk::{glib, Align, Button, Fixed, Label, Overflow};
@@ -13,15 +14,8 @@ const BATTERY_STATUS_FILE: &str = concatcp!(BATTERY_FOLDER, "/status");
 const ENERGY_NOW_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_now");
 const MAX_TRIES: usize = 10;
 
-pub fn element() -> Option<Button> {
-    let full = match read_f64(ENERGY_FULL_FILE) {
-        Ok(f) => f,
-        Err(e) => {
-            log::warn!("Widget Disabled: Couldn't read battery's energy_full: {e}");
-
-            return None;
-        }
-    };
+pub fn element() -> Result<Button> {
+    let full = read_f64(ENERGY_FULL_FILE)?;
 
     let label = Label::builder()
         .label(BATTERY_ICONS[0])
@@ -49,44 +43,24 @@ pub fn element() -> Option<Button> {
         .halign(Align::Center)
         .hexpand(false)
         .css_classes(["icon"])
+        .has_tooltip(true)
+        .tooltip_text("testing")
         .build();
 
     let mut tries = 0;
 
     glib::timeout_add_local(Duration::from_millis(250), move || {
-        let status = {
-            let s = match read_trim(BATTERY_STATUS_FILE) {
-                Ok(s) => s,
-                Err(e) => {
-                    log::warn!("Couldn't read battery status: {e}");
-
-                    tries += 1;
-
-                    return if tries > MAX_TRIES {
-                        log::warn!("Widget Disabled: Failed to query battery too many times.");
-                        glib::ControlFlow::Break
-                    } else {
-                        glib::ControlFlow::Continue
-                    };
-                }
-            };
-
-            if s == "Not charging" {
-                "Full".to_owned()
-            } else {
-                s
-            }
-        };
-
-        let energy = match read_f64(ENERGY_NOW_FILE) {
+        let (energy, status) = match get_battery_info() {
             Ok(s) => s,
             Err(e) => {
-                log::warn!("Couldn't read battery's energy_now: {e}");
+                log::warn!("{e}");
 
                 tries += 1;
 
                 return if tries > MAX_TRIES {
-                    log::warn!("Widget Disabled: Failed to query battery too many times.");
+                    log::warn!(
+                        "Widget Disabled: Failed to query battery too many successive times."
+                    );
                     glib::ControlFlow::Break
                 } else {
                     glib::ControlFlow::Continue
@@ -109,5 +83,21 @@ pub fn element() -> Option<Button> {
         glib::ControlFlow::Continue
     });
 
-    Some(button)
+    Ok(button)
+}
+
+fn get_battery_info() -> Result<(f64, String)> {
+    let status = {
+        let s = read_trim(BATTERY_STATUS_FILE)?;
+
+        if s == "Not charging" {
+            "Full".to_owned()
+        } else {
+            s
+        }
+    };
+
+    let energy = read_f64(ENERGY_NOW_FILE)?;
+
+    Ok((energy, status))
 }

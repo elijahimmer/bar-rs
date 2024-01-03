@@ -1,5 +1,6 @@
 use crate::util::read_f64;
 
+use anyhow::Result;
 use const_format::concatcp;
 use gtk::prelude::*;
 use gtk::{glib, Align, Button, EventControllerScroll, EventControllerScrollFlags, Label};
@@ -12,17 +13,8 @@ const BACKLIGHT_FOLDER: &str = "/sys/class/backlight/intel_backlight";
 const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness");
 const BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/brightness");
 
-pub fn element() -> Option<Button> {
-    let full = match read_f64(MAX_BRIGHTNESS_FILE) {
-        Ok(f) => f,
-        Err(e) => {
-            log::warn!(
-                "Brightness Widget disabled: Couldn't read Backlight's Current Brightness: {e}",
-            );
-
-            return None;
-        }
-    };
+pub fn element() -> Result<Button> {
+    let full = read_f64(MAX_BRIGHTNESS_FILE)?;
 
     let label = Label::builder().name("brightness").build();
 
@@ -36,6 +28,7 @@ pub fn element() -> Option<Button> {
         .halign(Align::Center)
         .hexpand(false)
         .css_classes(["icon"])
+        .has_tooltip(true)
         .build();
     let scroll_delta = full / 100.0;
 
@@ -82,5 +75,5 @@ pub fn element() -> Option<Button> {
         glib::ControlFlow::Continue
     });
 
-    Some(button)
+    Ok(button)
 }

@@ -36,32 +36,14 @@ fn build_ui(app: &Application) {
 
     let end_box = gtk::Box::builder().name("end-box").build();
 
-    if let Some(b) = cpu::element() {
-        end_box.append(&b);
-    }
-
-    if let Some(b) = ram::element() {
-        end_box.append(&b);
-    }
-
-    if let Some(b) = volume::element() {
-        end_box.append(&b);
-    }
-
-    if let Some(b) = brightness::element() {
-        end_box.append(&b);
-    };
-
-    if let Some(b) = battery::element() {
-        end_box.append(&b);
-    };
+    append_res!(end_box; cpu, ram, volume, brightness, battery);
 
     let start_wgt = match workspaces::element() {
-        Ok(w) => w,
-        Err(e) => {
-            log::error!("Failed to create workspaces widget: {e}");
+        Ok(a) => a,
+        Err(err) => {
+            log::warn!("Workspace Widget Disabled: {err}");
 
-            gtk::Box::builder().build()
+            Default::default()
         }
     };
 
@@ -76,8 +58,11 @@ fn build_ui(app: &Application) {
         .application(app)
         .title("bar-rs")
         .decorated(false)
+        .show_menubar(false)
         .default_height(25)
         .child(&main_box)
+        .has_tooltip(true)
+        .tooltip_text("test")
         .build();
 
     window.init_layer_shell();

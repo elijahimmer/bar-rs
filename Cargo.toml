@@ -1,6 +1,6 @@
 [package]
 name = "bar-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [features]
@@ -9,8 +9,8 @@ hyprland = []
 dynamic_css = []
 
 [profile.release]
-strip = true
-lto = true
+#strip = true
+#lto = true
 
 [dependencies]
 anyhow = "1.0.78"

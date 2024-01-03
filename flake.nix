@@ -1,5 +1,5 @@
 {
-  description = "eww hyprland workspace helper";
+  description = "A GTK4 Wayland Status Bar";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
@@ -18,5 +18,7 @@
     devShells = forAllSystems (system: {
       default = pkgsFor.${system}.callPackage ./shell.nix {};
     });
+
+    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
   };
 }

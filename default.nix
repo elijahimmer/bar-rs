@@ -1,14 +1,11 @@
 {
   lib,
-  glib,
   cargo,
   rustc,
   pkg-config,
+  glib,
   gtk4,
-  pango,
-  graphene,
   gtk4-layer-shell,
-  openssl,
   pkgs ? import <nixpkgs> {},
 }: let
   manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
@@ -25,19 +22,16 @@ in
       pkg-config
     ];
 
-    BuildInputs = [
-      pango
-      graphene
+    buildInputs = [
       glib
       gtk4
       gtk4-layer-shell
-      openssl
     ];
 
     meta = with lib; {
       description = "A GTK4 status bar. in rust.";
       homepage = "https://github.com/elijahimmer/bar-rs";
-      license = licenses.unlicense;
+      license = licenses.mit;
       maintainers = [];
       mainProgram = "bar-rs";
     };

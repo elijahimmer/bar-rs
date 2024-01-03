@@ -1,13 +1,7 @@
-#[cfg(feature = "hyprland")]
-mod hyprland;
+#[cfg_attr(feature = "hyprland", path = "hyprland/mod.rs")]
+pub mod wk;
 
-#[cfg(feature = "hyprland")]
-pub use hyprland::element;
-
-#[cfg(not(feature = "hyprland"))]
-pub fn element() -> Option<gtk::Box> {
-    None
-}
+pub use wk::element;
 
 const ALPHA_CHAR: u32 = 912; // the unicode character Alpha
 const SIGMA_CHAR: u32 = ALPHA_CHAR + 19; // the unicode character Sigma
@@ -20,5 +14,3 @@ pub fn map_workspace(workspace: i32) -> String {
         i => format!("{}", i),
     }
 }
-
-//There is a

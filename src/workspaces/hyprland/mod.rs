@@ -14,6 +14,14 @@ pub type Workspace = (i32, Button);
 const HYPR_STREAM_BUFFER_SIZE: usize = 1024;
 const ACTIVE_WORKSPACE_CLASSES: [&str; 1] = ["active-workspace"];
 
+// I don't know why someone would compile this on non-unix, but
+//      this could help them I guess...
+#[cfg(not(unix))]
+pub fn element() -> Reselt<Box> {
+    compile_error!("Hyprland Widget only works on windows! Disable the Hyprland Feature!");
+}
+
+#[cfg(unix)]
 pub fn element() -> Result<Box> {
     let his = env::var_os("HYPRLAND_INSTANCE_SIGNATURE")
         .ok_or(anyhow!(

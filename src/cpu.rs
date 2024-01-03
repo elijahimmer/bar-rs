@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use gtk::prelude::*;
 use gtk::{glib, Align, Box, Button, Label, LevelBar, LevelBarMode, Orientation};
 use std::time::Duration;
@@ -6,10 +7,11 @@ use sysinfo::{CpuRefreshKind, System};
 const CPU_ICON: &str = "CPU";
 const MINIMUM_CPU_USAGE: f32 = 75.0;
 
-pub fn element() -> Option<Button> {
+pub fn element() -> Result<Button> {
     if !sysinfo::IS_SUPPORTED_SYSTEM {
-        log::warn!("Widget Disabled: sysinfo does not support this system/os!");
-        return None;
+        return Err(anyhow!(
+            "Widget Disabled: sysinfo does not support this system/os!"
+        ));
     };
 
     let refresh_kind = CpuRefreshKind::new().with_cpu_usage();
@@ -55,5 +57,5 @@ pub fn element() -> Option<Button> {
         glib::ControlFlow::Continue
     });
 
-    Some(button)
+    Ok(button)
 }
