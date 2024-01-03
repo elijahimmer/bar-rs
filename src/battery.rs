@@ -43,8 +43,6 @@ pub fn element() -> Result<Button> {
         .halign(Align::Center)
         .hexpand(false)
         .css_classes(["icon"])
-        .has_tooltip(true)
-        .tooltip_text("testing")
         .build();
 
     let mut tries = 0;

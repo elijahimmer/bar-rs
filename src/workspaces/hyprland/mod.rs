@@ -46,7 +46,7 @@ pub fn element() -> Result<Box> {
     let mut workspaces = match utils::jumpstart_workspaces() {
         Ok(v) => v,
         Err(e) => {
-            log::warn!("Failed to populate workspaces from hyprland: {e}");
+            log::warn!("Failed to populate workspaces from hyprctl: {e}");
 
             vec![utils::create_workspace(1)]
         }
