@@ -136,8 +136,13 @@ pub fn element() -> Result<Box> {
 
                             active_workspace = wk.clone();
                         }
-                        Err(_j) => {
-                            active_workspace.0 = i;
+                        Err(j) => {
+                            // if not found in array, add it.
+                            active_workspace = create_workspace(i);
+                            active_workspace
+                                .1
+                                .set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
+                            workspaces.insert(j, active_workspace.clone());
                         }
                     };
                 }
