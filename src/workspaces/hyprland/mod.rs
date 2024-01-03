@@ -142,6 +142,11 @@ pub fn element() -> Result<Box> {
                             active_workspace
                                 .1
                                 .set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
+
+                            work_box.insert_child_after(
+                                &active_workspace.1,
+                                Some(&workspaces[j - 1].1),
+                            );
                             workspaces.insert(j, active_workspace.clone());
                         }
                     };
