@@ -1,19 +1,28 @@
 use super::Workspace;
 use anyhow::Result;
+use gtk::prelude::*;
 use gtk::Button;
 use regex::Regex;
 use std::process::Command;
 
 pub fn create_workspace(n: i32) -> Workspace {
+    let n_str = format!("{n}");
     let workspace_name = crate::workspaces::map_workspace(n);
+    let button = Button::builder()
+        .name(n_str.clone())
+        .label(workspace_name)
+        .build();
 
-    (
-        n,
-        Button::builder()
-            .name(format!("{n}"))
-            .label(workspace_name)
-            .build(),
-    )
+    button.connect_clicked(move |_| {
+        if let Err(e) = Command::new("hyprctl")
+            .args(["dispatch", "workspace", &n_str])
+            .output()
+        {
+            log::warn!("Failed to execute Hyprctl: {e}");
+        }
+    });
+
+    (n, button)
 }
 
 pub fn jumpstart_workspaces() -> Result<Vec<Workspace>> {

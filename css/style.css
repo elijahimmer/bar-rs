@@ -28,6 +28,14 @@
 	background-color: @pine;
 }
 
+#workspaces button:hover {
+	background-color: @iris;
+}
+
+#workspaces button:hover * {
+	color: @pine;
+}
+
 #clock {
 	font-family: mono;
 	font-size: 15px;
