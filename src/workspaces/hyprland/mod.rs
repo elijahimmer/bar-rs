@@ -147,9 +147,7 @@ pub fn element() -> Result<Box> {
                     };
                 }
                 Event::CreateWorkspace(i) => match workspaces.binary_search_by_key(&i, |w| w.0) {
-                    Ok(_j) => log::warn!(
-                        "Internal Error: Tried to created already existing workspace! {i}"
-                    ),
+                    Ok(_j) => { /*Workspace already exists, so don't do anything*/ }
                     Err(j) => {
                         //log::debug!("Creating Workspace: i={i} j={j}");
                         let nwk = create_workspace(i);
