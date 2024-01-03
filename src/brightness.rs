@@ -28,7 +28,6 @@ pub fn element() -> Result<Button> {
         .halign(Align::Center)
         .hexpand(false)
         .css_classes(["icon"])
-        .has_tooltip(true)
         .build();
     let scroll_delta = full / 100.0;
 

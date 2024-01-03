@@ -61,8 +61,6 @@ fn build_ui(app: &Application) {
         .show_menubar(false)
         .default_height(25)
         .child(&main_box)
-        .has_tooltip(true)
-        .tooltip_text("test")
         .build();
 
     window.init_layer_shell();
