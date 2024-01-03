@@ -1,5 +1,5 @@
 pub mod utils;
-use utils::*;
+pub use utils::*;
 
 use anyhow::{anyhow, Result};
 use gtk::prelude::*;
@@ -48,7 +48,7 @@ pub fn element() -> Result<Box> {
         Err(e) => {
             log::warn!("Failed to populate workspaces from hyprland: {e}");
 
-            vec![]
+            vec![utils::create_workspace(1)]
         }
     };
 
@@ -62,9 +62,7 @@ pub fn element() -> Result<Box> {
             }
         };
 
-        let j = workspaces
-            .binary_search_by_key(&i, |w| w.0)
-            .expect("INTERNAL ERROR: Active workspace not in workspaces list...");
+        let j = workspaces.binary_search_by_key(&i, |w| w.0).unwrap_or(0);
 
         workspaces[j].clone()
     };
