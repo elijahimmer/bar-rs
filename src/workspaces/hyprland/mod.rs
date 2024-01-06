@@ -1,10 +1,9 @@
 pub mod utils;
 pub use utils::*;
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use gtk::prelude::*;
 use gtk::{glib, Box, Button, Label};
-use std::env;
 use std::io::{ErrorKind::WouldBlock, Read};
 use std::os::unix::net::UnixStream;
 use std::time::Duration;
@@ -23,17 +22,9 @@ pub fn element() -> Reselt<Box> {
 
 #[cfg(unix)]
 pub fn element() -> Result<Box> {
-    let his = env::var_os("HYPRLAND_INSTANCE_SIGNATURE")
-        .ok_or(anyhow!(
-            "Failed to get HYPRLAND_INSTANCE_SIGNATURE environment variable"
-        ))?
-        .into_string()
-        .unwrap();
+    let mut hypr_listen_stream = UnixStream::connect(HYPR_SOCKET_LISTEN.to_string())?;
 
-    let stream_path = format!("/tmp/hypr/{his}/.socket2.sock");
-    let mut hypr_stream = UnixStream::connect(stream_path)?;
-
-    hypr_stream.set_nonblocking(true)?;
+    hypr_listen_stream.set_nonblocking(true)?;
 
     let main = Box::builder().build();
 
@@ -43,17 +34,17 @@ pub fn element() -> Result<Box> {
     main.append(&work_box);
     main.append(&submap_label);
 
-    let mut workspaces = match utils::jumpstart_workspaces() {
+    let mut workspaces = match jumpstart_workspaces() {
         Ok(v) => v,
         Err(e) => {
             log::warn!("Failed to populate workspaces from hyprctl: {e}");
 
-            vec![utils::create_workspace(1)]
+            vec![create_workspace(1)]
         }
     };
 
     let mut active_workspace: Workspace = {
-        let i = match utils::jumpstart_active_workspace() {
+        let i = match jumpstart_active_workspace() {
             Ok(a) => a,
             Err(e) => {
                 log::warn!("Failed to get active workspace from hyprctl: {e}");
@@ -82,7 +73,7 @@ pub fn element() -> Result<Box> {
     let m2 = main.clone();
 
     glib::timeout_add_local(Duration::from_millis(100), move || {
-        let size = match hypr_stream.read(&mut buffer[last_index..]) {
+        let size = match hypr_listen_stream.read(&mut buffer[last_index..]) {
             Ok(s) => s,
             Err(e) => {
                 if e.kind() != WouldBlock {
@@ -107,8 +98,8 @@ pub fn element() -> Result<Box> {
 
         let mut copy_over = false;
 
-        while let Some(i) = message[last_index..].find('\n') {
-            let m = &message[last_index..last_index + i];
+        while let Some(idx) = message[last_index..].find('\n') {
+            let m = &message[last_index..last_index + idx];
 
             if m.contains('\n') {
                 log::warn!("Failed to capture newline correctly. \"{m}\"");
@@ -116,71 +107,77 @@ pub fn element() -> Result<Box> {
                 break;
             }
 
-            let message: &str;
-            let args: &str;
+            let sep_idx: usize = m.find(">>").unwrap();
 
-            let j: usize = m.find(">>").unwrap();
-
-            message = &m[..j];
-            args = &m[(j + 2)..];
-
-            // log::trace!("Hyprland Message: {m}");
+            let message = &m[..sep_idx];
+            let args = &m[(sep_idx + 2)..];
 
             match parse_message(message, args).unwrap() {
-                Event::Workspace(i) => {
-                    log::debug!("Switching Workspace: i={i}");
+                Event::Workspace(wk_id) => {
+                    //log::debug!("Switching Workspace: wk_id={wk_id}");
                     active_workspace.1.set_css_classes(&[]);
-                    match workspaces.binary_search_by_key(&i, |w| w.0) {
-                        Ok(j) => {
-                            let wk = &workspaces[j];
+                    match workspaces.binary_search_by_key(&wk_id, |w| w.0) {
+                        Ok(idx) => {
+                            let wk = &workspaces[idx];
 
                             wk.1.set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
 
                             active_workspace = wk.clone();
                         }
-                        Err(j) => {
+                        Err(idx) => {
+                            //log::debug!("Workspace not found in list: wk_id={wk_id}, idx={idx}");
                             // if not found in array, add it.
-                            active_workspace = create_workspace(i);
+                            active_workspace = create_workspace(wk_id);
                             active_workspace
                                 .1
                                 .set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
 
-                            let wk = j.checked_sub(1).map(|k| &workspaces[k].1);
+                            let sibling = idx.checked_sub(1).map(|i| &workspaces[i].1);
 
-                            work_box.insert_child_after(&active_workspace.1, wk);
-                            workspaces.insert(j, active_workspace.clone());
+                            work_box.insert_child_after(&active_workspace.1, sibling);
+                            workspaces.insert(idx, active_workspace.clone());
                         }
                     };
                 }
-                Event::CreateWorkspace(i) => match workspaces.binary_search_by_key(&i, |w| w.0) {
-                    Ok(_j) => { /*Workspace already exists, so don't do anything*/ }
-                    Err(j) => {
-                        log::debug!("Creating Workspace: i={i} j={j}");
-                        let nwk = create_workspace(i);
-
-                        if nwk.0 == active_workspace.0 {
-                            nwk.1.set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
+                Event::CreateWorkspace(wk_id) => {
+                    match workspaces.binary_search_by_key(&wk_id, |w| w.0) {
+                        Ok(_idx) => {
+                            //log::debug!("Creating Workspace that already exists: wk_id={wk_id}");
+                            /*Workspace already exists, so don't do anything*/
                         }
+                        Err(idx) => {
+                            //log::debug!("Creating Workspace: wk_id={wk_id} idx={idx}");
+                            let nwk = create_workspace(wk_id);
 
-                        let wk = j.checked_sub(1).map(|k| &workspaces[k].1);
+                            // This check should be redundent, but it doesn't hurt to keep it.
+                            if nwk.0 == active_workspace.0 {
+                                nwk.1.set_css_classes(&ACTIVE_WORKSPACE_CLASSES);
+                            }
 
-                        work_box.insert_child_after(&nwk.1, wk);
-                        workspaces.insert(j, nwk);
+                            let sibling = idx.checked_sub(1).map(|i| &workspaces[i].1);
+
+                            work_box.insert_child_after(&nwk.1, sibling);
+                            workspaces.insert(idx, nwk);
+                        }
                     }
-                },
-                Event::DestroyWorkspace(i) => match workspaces.binary_search_by_key(&i, |w| w.0) {
-                    Ok(j) => {
-                        log::debug!("Destroying Workspace: i={i}, j={j}");
-                        let (_, wk) = workspaces.remove(j);
-                        work_box.remove(&wk);
+                }
+                Event::DestroyWorkspace(wk_id) => {
+                    match workspaces.binary_search_by_key(&wk_id, |w| w.0) {
+                        Ok(idx) => {
+                            //log::debug!("Destroying Workspace: wk_id={wk_id}, idx={idx}");
+                            let (_, wk) = workspaces.remove(idx);
+                            work_box.remove(&wk);
+                        }
+                        Err(_idx) => {
+                            log::warn!("Destroyed non-existant workspace: wk_id={wk_id}")
+                        }
                     }
-                    Err(_j) => log::warn!("Internal Error: Destroyed non-existant workspace: {i}"),
-                },
+                }
                 Event::Submap(map) => submap_label.set_label(map.as_str()),
                 Event::None => {}
             };
 
-            last_index += i + 1;
+            last_index += idx + 1;
 
             copy_over = true;
         }

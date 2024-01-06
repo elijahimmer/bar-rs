@@ -1,7 +1,5 @@
-use gtk::{glib, CssProvider};
-use std::fs;
-use std::time::{Duration, SystemTime};
-
+use gtk::CssProvider;
+const SCSS_PATH: &str = "./css/style.scss";
 pub fn css() -> CssProvider {
     log::info!("Loading CSS");
     let css = CssProvider::new();
@@ -13,43 +11,62 @@ pub fn css() -> CssProvider {
         );
     });
 
-    if cfg!(any(debug_assertions, feature = "dynamic_css")) {
-        // TODO: Replace this path so it isn't relative...
-        //       but where is the question...
-        const CSS_PATH: &str = "./css/style.css";
-
-        log::info!("Dynamic CSS enabled by build.");
-        let mut last_modified = SystemTime::now();
-        css.load_from_path(CSS_PATH);
-
-        let c2: CssProvider = css.clone();
-
-        glib::timeout_add_local(Duration::from_secs(1), move || {
-            match fs::metadata(&CSS_PATH) {
-                Ok(m) => match m.modified() {
-                    Ok(m) => {
-                        if m > last_modified {
-                            last_modified = m;
-
-                            log::info!("Reloading CSS");
-                            c2.load_from_path(CSS_PATH);
-                        }
-                    }
-
-                    Err(e) => log::warn!("Couldn't get {CSS_PATH} Access Time: {e}"),
-                },
-                Err(e) => log::warn!("Couldn't get {CSS_PATH} metadata: {e}"),
-            };
-
-            glib::ControlFlow::Continue
-        });
-    } else {
-        log::info!("Dynamic CSS disabled by build.");
-
-        let css_str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/css/style.css"));
-
-        css.load_from_string(css_str);
-    };
+    compile_css(&css);
 
     css
+}
+
+#[cfg(feature = "dynamic_css")]
+fn compile_css(css: &CssProvider) {
+    // TODO: Replace this path so it isn't relative...
+    //       but where is the question...
+    use gtk::glib;
+    use std::fs;
+    use std::time::SystemTime;
+
+    log::info!("Dynamic CSS enabled by build.");
+    let mut last_modified = SystemTime::now();
+    match grass::from_path(SCSS_PATH, &grass::Options::default()) {
+        Ok(str) => css.load_from_string(&str),
+
+        Err(e) => {
+            log::warn!("Failed to compile SCSS: {e}");
+        }
+    };
+
+    let c2: CssProvider = css.clone();
+
+    glib::timeout_add_seconds_local(1, move || {
+        match fs::metadata(&SCSS_PATH) {
+            Ok(m) => match m.modified() {
+                Ok(m) => {
+                    if m > last_modified {
+                        last_modified = m;
+
+                        log::info!("Reloading CSS");
+                        match grass::from_path(SCSS_PATH, &grass::Options::default()) {
+                            Ok(str) => c2.load_from_string(&str),
+
+                            Err(e) => {
+                                log::warn!("Failed to compile SCSS {SCSS_PATH}: {e}");
+                            }
+                        };
+                    }
+                }
+
+                Err(e) => log::warn!("Couldn't get {SCSS_PATH} Access Time: {e}"),
+            },
+            Err(e) => log::warn!("Couldn't get {SCSS_PATH} metadata: {e}"),
+        };
+
+        glib::ControlFlow::Continue
+    });
+}
+
+#[cfg(not(feature = "dynamic_css"))]
+fn compile_css(css: &CssProvider) {
+    log::info!("Dynamic CSS disabled by build.");
+
+    const SCSS_STR: &str = include_str!(concat!(env!("OUT_DIR"), "/style.css"));
+    css.load_from_string(SCSS_STR);
 }

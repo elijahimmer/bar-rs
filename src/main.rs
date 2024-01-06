@@ -1,10 +1,10 @@
 pub mod battery;
 pub mod brightness;
-pub mod clock;
 pub mod cpu;
 pub mod css;
 pub mod ram;
-pub mod util;
+pub mod time;
+pub mod utils;
 pub mod volume;
 pub mod workspaces;
 //pub mod wttr;
@@ -36,7 +36,7 @@ fn build_ui(app: &Application) {
 
     let end_box = gtk::Box::builder().name("end-box").build();
 
-    append_res!(end_box; cpu, ram, volume, brightness, battery);
+    append_res!(end_box; app; cpu, ram, volume, brightness, battery);
 
     let start_wgt = match workspaces::element() {
         Ok(a) => a,
@@ -49,7 +49,7 @@ fn build_ui(app: &Application) {
 
     let main_box = gtk::CenterBox::builder()
         .start_widget(&start_wgt)
-        .center_widget(&clock::element())
+        .center_widget(&time::element(app.clone()))
         .end_widget(&end_box)
         .build();
 
@@ -57,6 +57,7 @@ fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title("bar-rs")
+        .name("main")
         .decorated(false)
         .show_menubar(false)
         .default_height(25)

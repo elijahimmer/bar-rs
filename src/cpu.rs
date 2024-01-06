@@ -1,13 +1,13 @@
 use anyhow::{anyhow, Result};
 use gtk::prelude::*;
-use gtk::{glib, Align, Box, Button, Label, LevelBar, LevelBarMode, Orientation};
+use gtk::{glib, Align, Application, Box, Button, Label, LevelBar, LevelBarMode, Orientation};
 use std::time::Duration;
 use sysinfo::{CpuRefreshKind, System};
 
 const CPU_ICON: &str = "CPU";
 const MINIMUM_CPU_USAGE: f32 = 75.0;
 
-pub fn element() -> Result<Button> {
+pub fn element(_app: Application) -> Result<Button> {
     if !sysinfo::IS_SUPPORTED_SYSTEM {
         return Err(anyhow!(
             "Widget Disabled: sysinfo does not support this system/os!"
@@ -17,12 +17,13 @@ pub fn element() -> Result<Button> {
     let refresh_kind = CpuRefreshKind::new().with_cpu_usage();
     let mut cpu_tracker = System::new();
 
-    let base_box = Box::builder().name("cpu").build();
+    let base_box = Box::builder().css_classes(["metric"]).name("cpu").build();
 
     let label = Label::new(Some(CPU_ICON));
 
     let bar = LevelBar::builder()
         .name("cpu-bar")
+        .css_classes(["metric-bar"])
         .max_value(100.0)
         .min_value(0.0)
         .mode(LevelBarMode::Continuous)

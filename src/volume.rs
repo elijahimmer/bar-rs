@@ -1,12 +1,12 @@
 use anyhow::Result;
-use gtk::{Align, Button, Label};
+use gtk::{Align, Application, Button, Label};
 
 //const VOLUME_ICONS: [&str; 3] = ["󰕿", "󰖀", "󰕾"];
 //const VOLUME_CLAMP: f64 = (VOLUME_ICONS.len() - 1) as f64;
 //const VOLUME_MUTED: &str = "󰝟";
 const VOLUME_OFF: &str = "󰸈";
 
-pub fn element() -> Result<Button> {
+pub fn element(_app: Application) -> Result<Button> {
     let label = Label::builder()
         .label(VOLUME_OFF)
         .css_classes(["muted"])

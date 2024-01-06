@@ -1,9 +1,11 @@
-use crate::util::read_f64;
+use crate::utils::read_f64;
 
 use anyhow::Result;
 use const_format::concatcp;
 use gtk::prelude::*;
-use gtk::{glib, Align, Button, EventControllerScroll, EventControllerScrollFlags, Label};
+use gtk::{
+    glib, Align, Application, Button, EventControllerScroll, EventControllerScrollFlags, Label,
+};
 use std::fs;
 use std::time::Duration;
 
@@ -13,7 +15,7 @@ const BACKLIGHT_FOLDER: &str = "/sys/class/backlight/intel_backlight";
 const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness");
 const BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/brightness");
 
-pub fn element() -> Result<Button> {
+pub fn element(_app: Application) -> Result<Button> {
     let full = read_f64(MAX_BRIGHTNESS_FILE)?;
 
     let label = Label::builder().name("brightness").build();

@@ -1,9 +1,9 @@
-use crate::util::{read_f64, read_trim};
+use crate::utils::{read_f64, read_trim};
 
 use anyhow::Result;
 use const_format::concatcp;
 use gtk::prelude::*;
-use gtk::{glib, Align, Button, Fixed, Label, Overflow};
+use gtk::{glib, Align, Application, Button, Fixed, Label};
 use std::time::Duration;
 
 const BATTERY_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
@@ -14,25 +14,18 @@ const BATTERY_STATUS_FILE: &str = concatcp!(BATTERY_FOLDER, "/status");
 const ENERGY_NOW_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_now");
 const MAX_TRIES: usize = 10;
 
-pub fn element() -> Result<Button> {
+pub fn element(_app: Application) -> Result<Button> {
     let full = read_f64(ENERGY_FULL_FILE)?;
 
-    let label = Label::builder()
-        .label(BATTERY_ICONS[0])
-        .name("battery")
-        .build();
+    let label = Label::builder().label(BATTERY_ICONS[0]).build();
 
     let charging_label = Label::builder()
+        .name("battery_charging")
         .label("󱐋")
         .visible(false)
-        .name("battery_charging")
         .build();
 
-    let fixed = Fixed::builder()
-        .overflow(Overflow::Visible)
-        .hexpand(false)
-        .width_request(25)
-        .build();
+    let fixed = Fixed::builder().name("battery").hexpand(false).build();
 
     fixed.put(&label, 0.0, 0.0);
     fixed.put(&charging_label, 5.0, 0.0);

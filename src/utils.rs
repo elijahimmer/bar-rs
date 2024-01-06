@@ -2,15 +2,15 @@ use anyhow::Result;
 
 #[macro_export]
 macro_rules! append_res {
-    ($box:ident; $mod:ident) => {
-        match $mod::element() {
+    ($box:ident; $app:ident; $mod:ident) => {
+        match $mod::element($app.clone()) {
             Ok(wgt) => $box.append(&wgt),
             Err(err) => log::warn!("Widget {} Disabled: {err}", stringify!($mod)),
         }
     };
-    ($box:ident; $mod:ident, $($xs:ident),+) => {
-        append_res!($box; $mod);
-        append_res!($box; $($xs),+);
+    ($box:ident; $app:ident; $mod:ident, $($xs:ident),+) => {
+        append_res!($box; $app; $mod);
+        append_res!($box; $app; $($xs),+);
     };
 }
 

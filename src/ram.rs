@@ -1,13 +1,13 @@
 use anyhow::{anyhow, Result};
 use gtk::prelude::*;
-use gtk::{glib, Align, Box, Button, Label, LevelBar, LevelBarMode, Orientation};
+use gtk::{glib, Align, Application, Box, Button, Label, LevelBar, LevelBarMode, Orientation};
 use std::time::Duration;
 use sysinfo::{MemoryRefreshKind, System};
 
 const MEMORY_ICON: &str = "RAM";
 const MINIMUM_MEMORY_USAGE: f64 = 75.0;
 
-pub fn element() -> Result<Button> {
+pub fn element(_app: Application) -> Result<Button> {
     if !sysinfo::IS_SUPPORTED_SYSTEM {
         return Err(anyhow!("sysinfo does not support this system/os!"));
     };
@@ -15,7 +15,7 @@ pub fn element() -> Result<Button> {
     let refresh_kind = MemoryRefreshKind::new().with_ram();
     let mut ram_tracker = System::new();
 
-    let base_box = Box::builder().name("ram").build();
+    let base_box = Box::builder().css_classes(["metric"]).name("ram").build();
 
     let label = Label::new(Some(MEMORY_ICON));
 

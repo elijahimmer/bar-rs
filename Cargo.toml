@@ -6,19 +6,27 @@ edition = "2021"
 [features]
 default = ["hyprland"]
 hyprland = []
-dynamic_css = []
+dynamic_css = ["dep:grass"]
+
+[profile.dev]
+features = ["dynamic_css"]
 
 [profile.release]
 #strip = true
 #lto = true
+
+[build-dependencies]
+grass = { version = "0.13.1" }
 
 [dependencies]
 anyhow = "1.0.78"
 chrono = "0.4.31"
 const_format = "0.2.32"
 env_logger = "0.10.1"
+grass = { version = "0.13.1", optional = true }
 gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
 gtk-layer-shell = { version = "0.2.0", package = "gtk4-layer-shell" }
+lazy_static = "1.4.0"
 log = "0.4.20"
 regex = "1.10.2"
 sysinfo = { version = "0.30.3", default-features = false }
