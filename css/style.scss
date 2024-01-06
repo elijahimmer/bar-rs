@@ -14,6 +14,8 @@ $hl_low: #21202e;
 $hl_med: #403d52;
 $hl_high: #403d52;
 
+@use 'sass:math';
+
 window {
 	color: $rose;
 	background: $surface;
@@ -44,9 +46,10 @@ window {
 }
 
 #end-box {
+	margin-right: 10px;
 	.icon {
 		font-size: 20px;
-		margin: 0px 10px;
+		margin: 0px 4px;
 	}
 	box {
 		margin: 0px 3px;
@@ -56,6 +59,7 @@ window {
 #volume {
 	font-size: 21px;
 	color: $iris;
+	min-width: 14px;
 	&.muted {
 		color: $love;
 	}
@@ -63,6 +67,7 @@ window {
 
 #brightness {
 	color: $iris;
+	min-width: 19px
 }
 
 #battery {

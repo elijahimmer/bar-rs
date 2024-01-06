@@ -9,14 +9,15 @@ hyprland = []
 dynamic_css = ["dep:grass"]
 
 [profile.release]
-strip = true
-lto = true
+#strip = true
+#lto = true
 
 [build-dependencies]
 grass = { version = "0.13.1", default-features = false }
 
 [dependencies]
 anyhow = "1.0.78"
+cfg-if = "1.0.0"
 chrono = "0.4.31"
 const_format = "0.2.32"
 env_logger = "0.10.1"

@@ -35,7 +35,6 @@ pub fn element(_app: Application) -> Result<Button> {
         .child(&fixed)
         .valign(Align::Center)
         .halign(Align::Center)
-        .hexpand(false)
         .css_classes(["icon"])
         .build();
 

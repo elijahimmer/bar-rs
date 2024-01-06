@@ -54,6 +54,7 @@ name = "bar-rs"
 version = "2024.1.3"
 dependencies = [
  "anyhow",
+ "cfg-if",
  "chrono",
  "const_format",
  "env_logger",

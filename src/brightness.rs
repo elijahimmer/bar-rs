@@ -9,7 +9,7 @@ use gtk::{
 use std::fs;
 use std::time::Duration;
 
-const BRIGHTNESS_ICONS: [&str; 7] = ["󰃚", "󰃛", "󰃜", "󰃝", "󰃞", "󰃟", "󰃠"];
+const BRIGHTNESS_ICONS: [&str; 7] = ["󰃚 ", "󰃛", "󰃜", "󰃝", "󰃞", "󰃟", "󰃠"];
 const BRIGHTNESS_CLAMP: f64 = (BRIGHTNESS_ICONS.len() - 1) as f64;
 const BACKLIGHT_FOLDER: &str = "/sys/class/backlight/intel_backlight";
 const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness");
@@ -19,7 +19,7 @@ pub fn element(_app: Application) -> Result<Button> {
     log::trace!("Initalizing Brightness Widget");
     let full = read_f64(MAX_BRIGHTNESS_FILE)?;
 
-    let label = Label::builder().name("brightness").build();
+    let label = Label::builder().halign(Align::Start).build();
 
     let controller = EventControllerScroll::builder()
         .flags(EventControllerScrollFlags::VERTICAL)
@@ -30,8 +30,10 @@ pub fn element(_app: Application) -> Result<Button> {
         .valign(Align::Center)
         .halign(Align::Center)
         .hexpand(false)
+        .name("brightness")
         .css_classes(["icon"])
         .build();
+
     let scroll_delta = full / 100.0;
 
     controller.connect_scroll(move |_controller, _dx, dy| {
