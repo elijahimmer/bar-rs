@@ -1,8 +1,14 @@
-#[cfg_attr(feature = "hyprland", path = "hyprland/mod.rs")]
-pub mod wk;
+#[cfg(feature = "hyprland")]
+mod hyprland;
+#[cfg(feature = "hyprland")]
+pub use hyprland::element;
 
-pub use wk::element;
-
+#[cfg(not(feature = "hyprland"))]
+use anyhow::{anyhow, Result};
+#[cfg(not(feature = "hyprland"))]
+pub fn element() -> Result<gtk::Box> {
+    Err(anyhow!("No Workspace Widget enabled by build!"))
+}
 const ALPHA_CHAR: u32 = 'Α' as u32 - 1;
 
 pub fn map_workspace(workspace: i32) -> String {

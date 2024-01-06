@@ -16,7 +16,21 @@
       default = pkgsFor.${system}.callPackage ./. {};
     });
     devShells = forAllSystems (system: {
-      default = pkgsFor.${system}.callPackage ./shell.nix {};
+      default = pkgsFor.${system}.mkShell {
+        name = "nix";
+        nativeBuildInputs = with pkgsFor.${system}; [
+          cargo
+          rustc
+          pkg-config
+          hyprland
+        ];
+
+        buildInputs = with pkgsFor.${system}; [
+          glib
+          gtk4
+          gtk4-layer-shell
+        ];
+      };
     });
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);

@@ -7,6 +7,7 @@ use gtk::{Align, Application, Button, Label};
 const VOLUME_OFF: &str = "󰸈";
 
 pub fn element(_app: Application) -> Result<Button> {
+    log::trace!("Initalizing Volume Widget");
     let label = Label::builder()
         .label(VOLUME_OFF)
         .css_classes(["muted"])

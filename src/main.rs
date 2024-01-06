@@ -32,10 +32,11 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &Application) {
-    log::trace!("Initalizing Components");
+    log::trace!("Building UI");
 
     let end_box = gtk::Box::builder().name("end-box").build();
 
+    log::trace!("Initalizing Widgets:");
     append_res!(end_box; app; cpu, ram, volume, brightness, battery);
 
     let start_wgt = match workspaces::element() {
@@ -47,13 +48,16 @@ fn build_ui(app: &Application) {
         }
     };
 
+    let center_wgt = time::element(app.clone());
+
+    log::trace!("Initalizing Window");
+
     let main_box = gtk::CenterBox::builder()
         .start_widget(&start_wgt)
-        .center_widget(&time::element(app.clone()))
+        .center_widget(&center_wgt)
         .end_widget(&end_box)
         .build();
 
-    log::trace!("Initalizing window");
     let window = ApplicationWindow::builder()
         .application(app)
         .title("bar-rs")
@@ -64,6 +68,7 @@ fn build_ui(app: &Application) {
         .child(&main_box)
         .build();
 
+    log::trace!("Starting Layer Shell.");
     window.init_layer_shell();
     window.auto_exclusive_zone_enable();
     window.set_anchor(gtk_layer_shell::Edge::Right, true);
@@ -77,6 +82,6 @@ fn build_ui(app: &Application) {
         0,
     );
 
-    log::info!("Window presenting");
+    log::info!("Window Presenting");
     window.present();
 }

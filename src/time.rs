@@ -4,6 +4,7 @@ use gtk_layer_shell::LayerShell;
 use std::time::Duration;
 
 pub fn element(app: Application) -> Button {
+    log::trace!("Initalizing Time Widget");
     let hours_label = Label::new(None);
     let minutes_label = Label::new(None);
     let seconds_label = Label::new(None);
@@ -37,7 +38,6 @@ pub fn element(app: Application) -> Button {
         .valign(Align::Center)
         .build();
 
-    log::trace!("Initalizing Clock Window");
     let window = Window::builder()
         .application(&app)
         .title("bar-rs_calender")

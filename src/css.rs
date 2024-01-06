@@ -1,7 +1,7 @@
 use gtk::CssProvider;
-const SCSS_PATH: &str = "./css/style.scss";
 pub fn css() -> CssProvider {
     log::info!("Loading CSS");
+
     let css = CssProvider::new();
     css.connect_parsing_error(|_provider, section, error| {
         log::warn!(
@@ -23,6 +23,8 @@ fn compile_css(css: &CssProvider) {
     use gtk::glib;
     use std::fs;
     use std::time::SystemTime;
+
+    const SCSS_PATH: &str = "./css/style.scss";
 
     log::info!("Dynamic CSS enabled by build.");
     let mut last_modified = SystemTime::now();

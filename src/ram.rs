@@ -8,6 +8,7 @@ const MEMORY_ICON: &str = "RAM";
 const MINIMUM_MEMORY_USAGE: f64 = 75.0;
 
 pub fn element(_app: Application) -> Result<Button> {
+    log::trace!("Initalizing RAM Widget");
     if !sysinfo::IS_SUPPORTED_SYSTEM {
         return Err(anyhow!("sysinfo does not support this system/os!"));
     };

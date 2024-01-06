@@ -15,6 +15,7 @@ const ENERGY_NOW_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_now");
 const MAX_TRIES: usize = 10;
 
 pub fn element(_app: Application) -> Result<Button> {
+    log::trace!("Initalizing Battery Widget");
     let full = read_f64(ENERGY_FULL_FILE)?;
 
     let label = Label::builder().label(BATTERY_ICONS[0]).build();

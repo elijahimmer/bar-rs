@@ -16,6 +16,7 @@ const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness")
 const BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/brightness");
 
 pub fn element(_app: Application) -> Result<Button> {
+    log::trace!("Initalizing Brightness Widget");
     let full = read_f64(MAX_BRIGHTNESS_FILE)?;
 
     let label = Label::builder().name("brightness").build();

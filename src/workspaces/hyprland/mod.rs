@@ -16,12 +16,13 @@ const ACTIVE_WORKSPACE_CLASSES: [&str; 1] = ["active-workspace"];
 // I don't know why someone would compile this on non-unix, but
 //      this could help them I guess...
 #[cfg(not(unix))]
-pub fn element() -> Reselt<Box> {
+pub fn element() -> Result<Box> {
     compile_error!("Hyprland Widget only works on windows! Disable the Hyprland Feature!");
 }
 
 #[cfg(unix)]
 pub fn element() -> Result<Box> {
+    log::trace!("Initalizing Hyprland Widget");
     let mut hypr_listen_stream = UnixStream::connect(HYPR_SOCKET_LISTEN.to_string())?;
 
     hypr_listen_stream.set_nonblocking(true)?;

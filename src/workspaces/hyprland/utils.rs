@@ -2,7 +2,6 @@ use super::Workspace;
 use anyhow::{anyhow, Result};
 use gtk::prelude::*;
 use gtk::Button;
-use regex::Regex;
 use std::env;
 use std::io::prelude::*;
 use std::os::unix::net::UnixStream;
@@ -15,9 +14,9 @@ lazy_static::lazy_static! {
         .into_string()
         .unwrap();
     pub static ref HYPR_SOCKET_COMMAND: String =
-        format!("/tmp/hypr/{}/.socket.sock", HIS.to_string());
+        format!("/tmp/hypr/{}/.socket.sock", *HIS);
     pub static ref HYPR_SOCKET_LISTEN: String =
-        format!("/tmp/hypr/{}/.socket2.sock", HIS.to_string());
+        format!("/tmp/hypr/{}/.socket2.sock", *HIS);
 }
 
 pub fn send_hypr_command(command: String) -> Result<()> {
@@ -78,14 +77,21 @@ pub fn create_workspace(n: i32) -> Workspace {
     (n, button)
 }
 
+const CMD_LINE_START: &str = "workspace ID ";
+const CMD_LINE_LEN: usize = CMD_LINE_START.len();
 pub fn jumpstart_workspaces() -> Result<Vec<Workspace>> {
-    let workspace_regex = Regex::new(r"workspace ID (-?\d+)").unwrap();
-
     let res = send_hypr_command_read("workspaces".into())?;
 
     let mut v = vec![];
-    for (_, [cap]) in workspace_regex.captures_iter(&res).map(|c| c.extract()) {
-        v.push(create_workspace(cap.parse()?));
+    for line in res.lines() {
+        if line.starts_with(CMD_LINE_START) {
+            let pos = line[CMD_LINE_LEN..]
+                .find(' ')
+                .expect("Invaild Hyprctl Response");
+            v.push(create_workspace(
+                line[CMD_LINE_LEN..CMD_LINE_LEN + pos].parse()?,
+            ));
+        }
     }
 
     v.sort_unstable_by_key(|e| e.0);
@@ -94,13 +100,15 @@ pub fn jumpstart_workspaces() -> Result<Vec<Workspace>> {
 }
 
 pub fn jumpstart_active_workspace() -> Result<i32> {
-    let re = Regex::new(r"\d+").unwrap();
-
     let res = send_hypr_command_read("activeworkspace".into())?;
 
-    let mat = re.find(&res).unwrap();
-
-    Ok((res[mat.range()]).parse::<i32>()?)
+    let pos = match res[CMD_LINE_LEN..].find(' ') {
+        Some(p) => p,
+        None => {
+            return Err(anyhow!("Failed to parse Hyprctl Response"));
+        }
+    };
+    Ok(res[CMD_LINE_LEN..CMD_LINE_LEN + pos].parse()?)
 }
 
 #[derive(Debug, PartialEq)]

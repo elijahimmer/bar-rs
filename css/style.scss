@@ -56,7 +56,7 @@ window {
 #volume {
 	font-size: 21px;
 	color: $iris;
-	.muted {
+	&.muted {
 		color: $love;
 	}
 }

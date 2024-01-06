@@ -12,6 +12,7 @@ use std::time::Duration;
 const WTTR_URL: &str = "https://wttr.in/?m0QA";
 
 pub fn element() -> Button {
+    log::trace!("Initalizing Weather Widget");
     let wttr_label = Label::new(None);
 
     let wttr_button = Button::builder()
