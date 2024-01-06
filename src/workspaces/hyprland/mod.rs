@@ -1,7 +1,7 @@
 pub mod utils;
 pub use utils::*;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use gtk::prelude::*;
 use gtk::{glib, Box, Button, Label};
 use std::io::{ErrorKind::WouldBlock, Read};
@@ -22,6 +22,10 @@ pub fn element() -> Result<Box> {
 
 #[cfg(unix)]
 pub fn element() -> Result<Box> {
+    if HIS.to_string() == "" {
+        return Err(anyhow!("Failed to create Hyprland Widget."));
+    }
+
     log::trace!("Initalizing Hyprland Widget");
     let mut hypr_listen_stream = UnixStream::connect(HYPR_SOCKET_LISTEN.to_string())?;
 
@@ -36,27 +40,25 @@ pub fn element() -> Result<Box> {
     main.append(&submap_label);
 
     let mut workspaces = match jumpstart_workspaces() {
-        Ok(v) => v,
-        Err(e) => {
-            log::warn!("Failed to populate workspaces from hyprctl: {e}");
-
+        Ok(vec) => vec,
+        Err(err) => {
+            log::warn!("Failed to populate workspaces from hyprctl. error={err}");
             vec![create_workspace(1)]
         }
     };
 
     let mut active_workspace: Workspace = {
-        let i = match jumpstart_active_workspace() {
-            Ok(a) => a,
-            Err(e) => {
-                log::warn!("Failed to get active workspace from hyprctl: {e}");
-
+        let idx = match jumpstart_active_workspace() {
+            Ok(idx) => idx,
+            Err(err) => {
+                log::warn!("Failed to get active workspace from hyprctl. error={err}");
                 1
             }
         };
 
-        let j = workspaces.binary_search_by_key(&i, |w| w.0).unwrap_or(0);
+        let jdx = workspaces.binary_search_by_key(&idx, |w| w.0).unwrap_or(0);
 
-        workspaces[j].clone()
+        workspaces[jdx].clone()
     };
 
     for (i, w) in workspaces.iter() {
@@ -75,15 +77,15 @@ pub fn element() -> Result<Box> {
 
     glib::timeout_add_local(Duration::from_millis(100), move || {
         let size = match hypr_listen_stream.read(&mut buffer[last_index..]) {
-            Ok(s) => s,
-            Err(e) => {
-                if e.kind() != WouldBlock {
-                    log::warn!("Failed to read from Hyprstream: {e}");
+            Ok(size) => size,
+            Err(err) => {
+                if err.kind() != WouldBlock {
+                    log::warn!("Failed to read from Hyprland IPC. error={err}");
                     error_counter += 1;
 
                     if error_counter > 10 {
                         log::error!(
-                            "Failed to read from Hyprstream too many times. Killing widget"
+                            "Failed to read from Hyprland IPC too many times. Killing widget"
                         );
 
                         m2.set_visible(false);
@@ -95,7 +97,7 @@ pub fn element() -> Result<Box> {
             }
         };
 
-        let message = std::str::from_utf8(&buffer[..size]).unwrap();
+        let message = String::from_utf8_lossy(&buffer[..size]);
 
         let mut copy_over = false;
 
@@ -103,17 +105,39 @@ pub fn element() -> Result<Box> {
             let m = &message[last_index..last_index + idx];
 
             if m.contains('\n') {
-                log::warn!("Failed to capture newline correctly. \"{m}\"");
+                log::warn!(
+                    "Failed to capture newline correctly. (maybe invalid message) message=\"{m}\""
+                );
                 last_index = 0;
                 break;
             }
 
-            let sep_idx: usize = m.find(">>").unwrap();
+            let sep_idx: usize = match m.find(">>") {
+                Some(idx) => idx,
+                None => {
+                    log::warn!(
+                        "Failed to read hyprland message. (maybe invalid message) message=\"{m}\""
+                    );
+                    last_index = 0;
+                    continue;
+                }
+            };
 
             let message = &m[..sep_idx];
             let args = &m[(sep_idx + 2)..];
 
-            match parse_message(message, args).unwrap() {
+            let parsed = match parse_message(message, args) {
+                Ok(parsed) => parsed,
+                Err(err) => {
+                    log::warn!(
+                        "Failed to parse hyprland message args. (maybe invalid message) error={err}, message=\"{message}\", args=\"{args}\""
+                    );
+                    last_index = 0;
+                    continue;
+                }
+            };
+
+            match parsed {
                 Event::Workspace(wk_id) => {
                     //log::debug!("Switching Workspace: wk_id={wk_id}");
                     active_workspace.1.set_css_classes(&[]);
@@ -170,7 +194,7 @@ pub fn element() -> Result<Box> {
                             work_box.remove(&wk);
                         }
                         Err(_idx) => {
-                            log::warn!("Destroyed non-existant workspace: wk_id={wk_id}")
+                            log::warn!("Destroyed non-existant workspace. wk_id={wk_id}")
                         }
                     }
                 }

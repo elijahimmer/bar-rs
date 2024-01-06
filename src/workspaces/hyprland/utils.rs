@@ -7,12 +7,22 @@ use std::io::prelude::*;
 use std::os::unix::net::UnixStream;
 
 lazy_static::lazy_static! {
-    pub static ref HIS: String = env::var_os("HYPRLAND_INSTANCE_SIGNATURE")
+    pub static ref HIS: String = match env::var_os("HYPRLAND_INSTANCE_SIGNATURE")
         .ok_or(anyhow!(
             "Failed to get HYPRLAND_INSTANCE_SIGNATURE environment variable"
-        )).unwrap()
-        .into_string()
-        .unwrap();
+        )) {
+            Ok(var) => match var.into_string() {
+                Ok(string) => string,
+                Err(err) => {
+                    log::warn!("HYPRLAND_INSTANCE_SIGNATURE contains invalid unicode: {err:?}");
+                    String::new()
+                }
+            },
+            Err(err) => {
+                log::warn!("Failed to get HYPRLAND_INSTANCE_SIGNATURE. error={err}");
+                String::new()
+            }
+        };
     pub static ref HYPR_SOCKET_COMMAND: String =
         format!("/tmp/hypr/{}/.socket.sock", *HIS);
     pub static ref HYPR_SOCKET_LISTEN: String =
@@ -69,8 +79,8 @@ pub fn create_workspace(n: i32) -> Workspace {
         .build();
 
     button.connect_clicked(move |_| {
-        if let Err(e) = send_hypr_command(format!("dispatch workspace {n_str}")) {
-            log::warn!("Failed to execute Hyprctl: {e}");
+        if let Err(err) = send_hypr_command(format!("dispatch workspace {n_str}")) {
+            log::warn!("Failed to send/read command to/from Hyprland. error={err}");
         }
     });
 
@@ -85,9 +95,8 @@ pub fn jumpstart_workspaces() -> Result<Vec<Workspace>> {
     let mut v = vec![];
     for line in res.lines() {
         if line.starts_with(CMD_LINE_START) {
-            let pos = line[CMD_LINE_LEN..]
-                .find(' ')
-                .expect("Invaild Hyprctl Response");
+            let pos = line[CMD_LINE_LEN..].find(' ').ok_or(anyhow!(""))?;
+
             v.push(create_workspace(
                 line[CMD_LINE_LEN..CMD_LINE_LEN + pos].parse()?,
             ));

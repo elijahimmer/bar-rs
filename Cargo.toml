@@ -1,6 +1,6 @@
 [package]
 name = "bar-rs"
-version = "2024.1.3"
+version = "2024.1.4"
 edition = "2021"
 
 [features]
@@ -9,8 +9,8 @@ hyprland = []
 dynamic_css = ["dep:grass"]
 
 [profile.release]
-#strip = true
-#lto = true
+strip = true
+lto = true
 
 [build-dependencies]
 grass = { version = "0.13.1", default-features = false }

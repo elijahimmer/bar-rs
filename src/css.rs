@@ -5,7 +5,7 @@ pub fn css() -> CssProvider {
     let css = CssProvider::new();
     css.connect_parsing_error(|_provider, section, error| {
         log::warn!(
-            "CSS failed to parse: {} : {}",
+            "CSS failed to parse. section={}, error={}",
             section.to_str(),
             error.message()
         );
@@ -31,8 +31,8 @@ fn compile_css(css: &CssProvider) {
     match grass::from_path(SCSS_PATH, &grass::Options::default()) {
         Ok(str) => css.load_from_string(&str),
 
-        Err(e) => {
-            log::warn!("Failed to compile SCSS: {e}");
+        Err(err) => {
+            log::warn!("Failed to compile SCSS. error={err}");
         }
     };
 
@@ -49,16 +49,20 @@ fn compile_css(css: &CssProvider) {
                         match grass::from_path(SCSS_PATH, &grass::Options::default()) {
                             Ok(str) => c2.load_from_string(&str),
 
-                            Err(e) => {
-                                log::warn!("Failed to compile SCSS {SCSS_PATH}: {e}");
+                            Err(err) => {
+                                log::warn!(
+                                    "Failed to compile SCSS. SCSS_PATH={SCSS_PATH}, error={err}"
+                                );
                             }
                         };
                     }
                 }
 
-                Err(e) => log::warn!("Couldn't get {SCSS_PATH} Access Time: {e}"),
+                Err(err) => {
+                    log::warn!("Couldn't get SCSS Access Time file={SCSS_PATH}, error={err}")
+                }
             },
-            Err(e) => log::warn!("Couldn't get {SCSS_PATH} metadata: {e}"),
+            Err(err) => log::warn!("Couldn't get SCSS Metadata file={SCSS_PATH}, error={err}"),
         };
 
         glib::ControlFlow::Continue

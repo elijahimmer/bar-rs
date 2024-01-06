@@ -42,7 +42,7 @@ fn build_ui(app: &Application) {
     let start_wgt = match workspaces::element() {
         Ok(a) => a,
         Err(err) => {
-            log::warn!("Workspace Widget Disabled: {err}");
+            log::warn!("Workspace Widget Disabled. error={err}");
 
             Default::default()
         }

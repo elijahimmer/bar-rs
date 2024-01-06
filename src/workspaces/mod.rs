@@ -13,11 +13,21 @@ const ALPHA_CHAR: u32 = 'Α' as u32 - 1;
 
 pub fn map_workspace(workspace: i32) -> String {
     match workspace {
-        i @ 1..=17 => char::from_u32(ALPHA_CHAR + i as u32).unwrap().to_string(),
+        i @ 1..=17 => match char::from_u32(ALPHA_CHAR + i as u32) {
+            Some(ch) => ch.to_string(),
+            None => {
+                log::warn!("Failed to map workspace to symbol: i={i}");
+                format!("{}", i)
+            }
+        },
         // I needed to split this because there is a reserved character between rho and sigma.
-        i @ 18..=24 => char::from_u32(ALPHA_CHAR + i as u32 + 1)
-            .unwrap()
-            .to_string(),
+        i @ 18..=24 => match char::from_u32(ALPHA_CHAR + i as u32 + 1) {
+            Some(ch) => ch.to_string(),
+            None => {
+                log::warn!("Failed to map workspace to symbol: i={i}");
+                format!("{}", i)
+            }
+        },
         i => format!("{}", i),
     }
 }

@@ -42,9 +42,9 @@ pub fn element(_app: Application) -> Result<Button> {
 
     glib::timeout_add_local(Duration::from_millis(250), move || {
         let (energy, status) = match get_battery_info() {
-            Ok(s) => s,
-            Err(e) => {
-                log::warn!("{e}");
+            Ok(res) => res,
+            Err(err) => {
+                log::warn!("{err}");
 
                 tries += 1;
 

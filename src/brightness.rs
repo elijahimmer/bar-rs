@@ -38,9 +38,9 @@ pub fn element(_app: Application) -> Result<Button> {
 
     controller.connect_scroll(move |_controller, _dx, dy| {
         let current_brightness = match read_f64(BRIGHTNESS_FILE) {
-            Ok(f) => f,
-            Err(e) => {
-                log::warn!("Couldn't read Backlight's Current Brightness: {e}");
+            Ok(float) => float,
+            Err(err) => {
+                log::warn!("Couldn't read Backlight's Current Brightness. error={err}");
 
                 return glib::signal::Propagation::Stop;
             }
@@ -51,8 +51,8 @@ pub fn element(_app: Application) -> Result<Button> {
             (current_brightness + scroll_delta * dy).clamp(0.0, full) as usize
         );
 
-        if let Err(e) = fs::write(BRIGHTNESS_FILE, &brightness) {
-            log::warn!("Couldn't set Backlight Brightness ({brightness}): {e}");
+        if let Err(err) = fs::write(BRIGHTNESS_FILE, &brightness) {
+            log::warn!("Couldn't set Backlight Brightness. brightness={brightness}, error={err}");
         };
 
         glib::signal::Propagation::Stop
@@ -62,9 +62,9 @@ pub fn element(_app: Application) -> Result<Button> {
 
     glib::timeout_add_local(Duration::from_millis(250), move || {
         let brightness = match read_f64(BRIGHTNESS_FILE) {
-            Ok(f) => f,
-            Err(e) => {
-                log::warn!("Failed to read Brightness File: {}", e);
+            Ok(float) => float,
+            Err(err) => {
+                log::warn!("Failed to read Brightness File. error={err}");
 
                 return glib::ControlFlow::Break;
             }

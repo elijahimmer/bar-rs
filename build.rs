@@ -16,8 +16,8 @@ fn compile_css() {
     let dest_path = Path::new(&out_dir).join("style.css");
     match grass::from_string(SCSS_STR, &grass::Options::default()) {
         Ok(str) => fs::write(&dest_path, str).unwrap(),
-        Err(e) => {
-            eprintln!("Failed to compile SCSS: {SCSS_PATH}: {e}");
+        Err(err) => {
+            eprintln!("Failed to compile SCSS. file={SCSS_PATH}, error={err}");
         }
     };
     println!("cargo:rerun-if-changed={SCSS_PATH}");
