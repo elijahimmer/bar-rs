@@ -4,4 +4,4 @@ run:
 
 	-killall bar-rs
 
-	cargo run --release
+	export RUST_LOG=trace; cargo run --release
