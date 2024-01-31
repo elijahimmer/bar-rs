@@ -1,6 +1,6 @@
 [package]
 name = "bar-rs"
-version = "2024.1.4"
+version = "2024.2.0"
 edition = "2021"
 
 [features]
@@ -18,7 +18,6 @@ grass = { version = "0.13.1", default-features = false }
 [dependencies]
 anyhow = "1.0.78"
 cfg-if = "1.0.0"
-chrono = "0.4.31"
 const_format = "0.2.32"
 env_logger = "0.10.1"
 grass = { version = "0.13.1", default-features = false, optional = true }

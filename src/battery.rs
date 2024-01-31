@@ -8,31 +8,55 @@ use std::time::Duration;
 
 const BATTERY_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
 const BATTERY_CLAMP: f64 = (BATTERY_ICONS.len() - 1) as f64;
+// TODO: I should make this not hard coded and read all of them.
 const BATTERY_FOLDER: &str = "/sys/class/power_supply/BAT0";
 const ENERGY_FULL_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_full");
 const BATTERY_STATUS_FILE: &str = concatcp!(BATTERY_FOLDER, "/status");
 const ENERGY_NOW_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_now");
 const MAX_TRIES: usize = 10;
 
-pub fn element(_app: Application) -> Result<Button> {
-    log::trace!("Initalizing Battery Widget");
+pub struct Icons {
+    container: Fixed,
+    charging: Label,
+    battery: Label,
+}
+
+impl Icons {
+    pub fn new() -> Icons {
+        let charging = Label::builder()
+            .name("battery_charging")
+            .label("󱐋")
+            .visible(false)
+            .build();
+        let battery = Label::new(Some(BATTERY_ICONS[0]));
+        let container = Fixed::builder().name("battery").hexpand(false).build();
+
+        container.put(&battery, 0.0, 0.0);
+        container.put(&charging, 5.0, 0.0);
+
+        Icons {
+            container,
+            charging,
+            battery,
+        }
+    }
+}
+
+use std::default::Default;
+impl Default for Icons {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+pub fn new(_app: Application) -> Result<Button> {
+    log::trace!("Initalizing Battery Widgets");
+
     let full = read_f64(ENERGY_FULL_FILE)?;
-
-    let label = Label::builder().label(BATTERY_ICONS[0]).build();
-
-    let charging_label = Label::builder()
-        .name("battery_charging")
-        .label("󱐋")
-        .visible(false)
-        .build();
-
-    let fixed = Fixed::builder().name("battery").hexpand(false).build();
-
-    fixed.put(&label, 0.0, 0.0);
-    fixed.put(&charging_label, 5.0, 0.0);
+    let icons = Icons::new();
 
     let button = Button::builder()
-        .child(&fixed)
+        .child(&icons.container)
         .valign(Align::Center)
         .halign(Align::Center)
         .css_classes(["icon"])
@@ -66,10 +90,10 @@ pub fn element(_app: Application) -> Result<Button> {
             .round()
             .clamp(0.0, BATTERY_CLAMP) as usize;
 
-        label.set_label(BATTERY_ICONS[i]);
-        label.set_css_classes(&[&status]);
+        icons.battery.set_label(BATTERY_ICONS[i]);
+        icons.battery.set_css_classes(&[&status]);
 
-        charging_label.set_visible(status == "Charging");
+        icons.charging.set_visible(status == "Charging");
 
         glib::ControlFlow::Continue
     });

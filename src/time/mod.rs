@@ -1,31 +1,17 @@
+pub mod clock;
+
 use gtk::prelude::*;
-use gtk::{glib, Align, Application, Box, Button, Calendar, Label, Window};
+use gtk::{glib, Align, Application, Button, Calendar, Window};
 use gtk_layer_shell::LayerShell;
 use std::time::Duration;
 
-pub fn element(app: Application) -> Button {
+pub fn new(app: Application) -> Button {
     log::trace!("Initalizing Time Widget");
-    let hours_label = Label::new(None);
-    let minutes_label = Label::new(None);
-    let seconds_label = Label::new(None);
 
-    // I cannot find a better way to copy over this element.
-    // I may want to look into glib::clone!(), but that may just be more
-    //      than what is needed here.
-    let spacing1 = Label::builder().css_classes(["spacer"]).label("").build();
-
-    let spacing2 = Label::builder().css_classes(["spacer"]).label("").build();
-
-    let clock_box = Box::new(gtk::Orientation::Horizontal, 0);
-
-    clock_box.append(&hours_label);
-    clock_box.append(&spacing1);
-    clock_box.append(&minutes_label);
-    clock_box.append(&spacing2);
-    clock_box.append(&seconds_label);
+    let clock = crate::time::clock::Clock::new();
 
     let clock_button = Button::builder()
-        .child(&clock_box)
+        .child(&clock.container)
         .valign(Align::Center)
         .halign(Align::Center)
         .name("calendar")
@@ -53,6 +39,11 @@ pub fn element(app: Application) -> Button {
     window.set_anchor(gtk_layer_shell::Edge::Top, true);
 
     clock_button.connect_clicked(move |_button| {
+        match glib::DateTime::now_local() {
+            Ok(date) => calender.select_day(&date),
+            Err(err) => log::warn!("Failed to get current date! error={err}"),
+        };
+
         let visible = window.get_visible();
         if visible {
             log::info!("Calender Hidden");
@@ -63,11 +54,12 @@ pub fn element(app: Application) -> Button {
     });
 
     glib::timeout_add_local(Duration::from_millis(250), move || {
-        let now = chrono::Local::now();
-
-        hours_label.set_label(&now.format("%H").to_string());
-        minutes_label.set_label(&now.format("%M").to_string());
-        seconds_label.set_label(&now.format("%S").to_string());
+        match clock.update() {
+            Ok(()) => {}
+            Err(err) => {
+                log::warn!("Clock failed to update time. error={err}")
+            }
+        };
 
         glib::ControlFlow::Continue
     });

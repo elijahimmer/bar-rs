@@ -18,8 +18,6 @@ pub fn css() -> CssProvider {
 
 #[cfg(feature = "dynamic_css")]
 fn compile_css(css: &CssProvider) {
-    // TODO: Replace this path so it isn't relative...
-    //       but where is the question...
     use gtk::glib;
     use std::fs;
     use std::time::SystemTime;
