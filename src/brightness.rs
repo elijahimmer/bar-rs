@@ -15,7 +15,7 @@ const BACKLIGHT_FOLDER: &str = "/sys/class/backlight/intel_backlight";
 const MAX_BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/max_brightness");
 const BRIGHTNESS_FILE: &str = concatcp!(BACKLIGHT_FOLDER, "/brightness");
 
-pub fn element(_app: Application) -> Result<Button> {
+pub fn new(_app: Application) -> Result<Button> {
     log::trace!("Initalizing Brightness Widget");
     let full = read_f64(MAX_BRIGHTNESS_FILE)?;
 

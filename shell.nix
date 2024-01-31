@@ -4,8 +4,9 @@ pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     cargo
     rustc
+    clippy
     pkg-config
-    hyprland
+    pw-volume
   ];
 
   buildInputs = with pkgs; [

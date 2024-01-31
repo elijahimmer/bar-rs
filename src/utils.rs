@@ -3,7 +3,7 @@ use anyhow::Result;
 #[macro_export]
 macro_rules! append_res {
     ($box:ident; $app:ident; $mod:ident) => {
-        match $mod::element($app.clone()) {
+        match $mod::new($app.clone()) {
             Ok(wgt) => $box.append(&wgt),
             Err(err) => log::error!("Widget {} Disabled. error={err}", stringify!($mod)),
         }

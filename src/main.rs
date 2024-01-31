@@ -37,12 +37,7 @@ fn build_ui(app: &Application) {
     let end_box = gtk::Box::builder().name("end-box").build();
 
     log::trace!("Initalizing Widgets:");
-    append_res!(end_box; app; cpu, ram, volume, brightness);
-
-    match battery::new(app.clone()) {
-        Ok(wgt) => end_box.append(&wgt),
-        Err(err) => log::error!("Battery Widget Disabled. error={err}"),
-    };
+    append_res!(end_box; app; cpu, ram, volume, brightness, battery);
 
     let start_wgt = match workspaces::element() {
         Ok(a) => a,
