@@ -6,8 +6,7 @@
   glib,
   gtk4,
   gtk4-layer-shell,
-  hyprland,
-  pkgs ? import <nixpkgs> {},
+  pkgs,
 }: let
   manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
 in
@@ -21,7 +20,6 @@ in
       cargo
       rustc
       pkg-config
-      hyprland
     ];
 
     buildInputs = [

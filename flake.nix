@@ -22,7 +22,6 @@
           cargo
           rustc
           pkg-config
-          hyprland
         ];
 
         buildInputs = with pkgsFor.${system}; [
@@ -30,7 +29,8 @@
           gtk4
           gtk4-layer-shell
         ];
-      };
+
+     };
     });
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);

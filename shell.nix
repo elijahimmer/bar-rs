@@ -14,4 +14,8 @@ pkgs.mkShell {
     gtk4
     gtk4-layer-shell
   ];
+
+	runTimeInputs = with pkgsFor.${system}; [
+		pw-volume
+	];
 }
