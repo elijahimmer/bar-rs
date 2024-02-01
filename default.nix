@@ -1,13 +1,4 @@
-{
-  lib,
-  cargo,
-  rustc,
-  pkg-config,
-  glib,
-  gtk4,
-  gtk4-layer-shell,
-  pkgs,
-}: let
+{pkgs ? import "<nixpkgs>" {}, ...}: let
   manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
 in
   pkgs.rustPlatform.buildRustPackage {
@@ -16,19 +7,19 @@ in
     cargoLock.lockFile = ./Cargo.lock;
     src = pkgs.lib.cleanSource ./.;
 
-    nativeBuildInputs = [
+    nativeBuildInputs = with pkgs; [
       cargo
       rustc
       pkg-config
     ];
 
-    buildInputs = [
+    buildInputs = with pkgs; [
       glib
       gtk4
       gtk4-layer-shell
     ];
 
-    meta = with lib; {
+    meta = with pkgs.lib; {
       description = "A GTK4 status bar. in rust.";
       homepage = "https://github.com/elijahimmer/bar-rs";
       license = licenses.mit;
