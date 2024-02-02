@@ -103,12 +103,12 @@ pub fn element() -> Result<Box> {
 
         while let Some(idx) = message[last_index..].find('\n') {
             let m = &message[last_index..last_index + idx];
+            last_index += idx + 1;
 
             if m.contains('\n') {
                 log::warn!(
                     "Failed to capture newline correctly. (maybe invalid message) message=\"{m}\""
                 );
-                last_index = 0;
                 break;
             }
 
@@ -118,7 +118,6 @@ pub fn element() -> Result<Box> {
                     log::warn!(
                         "Failed to read hyprland message. (maybe invalid message) message=\"{m}\""
                     );
-                    last_index = 0;
                     continue;
                 }
             };
@@ -132,7 +131,6 @@ pub fn element() -> Result<Box> {
                     log::warn!(
                         "Failed to parse hyprland message args. (maybe invalid message) error={err}, message=\"{message}\", args=\"{args}\""
                     );
-                    last_index = 0;
                     continue;
                 }
             };
@@ -202,8 +200,6 @@ pub fn element() -> Result<Box> {
                 Event::None => {}
             };
 
-            last_index += idx + 1;
-
             copy_over = true;
         }
 
@@ -217,3 +213,6 @@ pub fn element() -> Result<Box> {
 
     Ok(main)
 }
+
+#[cfg(test)]
+mod test {}
