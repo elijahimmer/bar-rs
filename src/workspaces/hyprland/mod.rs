@@ -17,7 +17,7 @@ const ACTIVE_WORKSPACE_CLASSES: [&str; 1] = ["active-workspace"];
 //      this could help them I guess...
 #[cfg(not(unix))]
 pub fn element() -> Result<Box> {
-    compile_error!("Hyprland Widget only works on windows! Disable the Hyprland Feature!");
+    compile_error!("Hyprland Widget only works on unix + wayland! Disable the Hyprland Feature!");
 }
 
 #[cfg(unix)]
