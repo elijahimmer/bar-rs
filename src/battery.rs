@@ -86,12 +86,24 @@ pub fn new(_app: Application) -> Result<Button> {
         // reset tries count if it gets passed it all
         tries = 0;
 
-        let i = (BATTERY_CLAMP * energy / full)
+        let charge_percent = energy / full;
+
+        let i = (BATTERY_CLAMP * charge_percent)
             .round()
             .clamp(0.0, BATTERY_CLAMP) as usize;
 
+        let status_list = if status == "Discharging" && charge_percent < 0.25 {
+            if charge_percent < 0.1 {
+                ["Critical"]
+            } else {
+                ["Warn"]
+            }
+        } else {
+            [status.as_str()]
+        };
+
         icons.battery.set_label(BATTERY_ICONS[i]);
-        icons.battery.set_css_classes(&[&status]);
+        icons.battery.set_css_classes(&status_list);
 
         icons.charging.set_visible(status == "Charging");
 

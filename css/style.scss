@@ -70,10 +70,24 @@ window {
 	min-width: 19px
 }
 
+@keyframes blinker {
+  50% {
+    color: $gold;
+  }
+}
+
 #battery {
 	color: $pine;
 	.Full {
 		color: $gold;
+	}
+	.Warn {
+		color: $love;
+		animation: blinker 1s linear infinite;
+	}
+	.Critical {
+		color: $love;
+		animation: blinker 0.5s linear infinite;
 	}
 	#battery_charging {
 		font-size: 21px;
