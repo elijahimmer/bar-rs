@@ -53,7 +53,11 @@ impl VolumeController {
         let state = VolumeState::get();
 
         self.label.set_text(state.to_str());
-        self.label.set_css_classes(&[]);
+        self.label.set_css_classes(match state {
+            VolumeState::Volume(_) => &["on"],
+            VolumeState::Muted => &["muted"],
+            VolumeState::Off => &["off"],
+        });
     }
 }
 

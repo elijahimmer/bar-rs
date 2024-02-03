@@ -120,3 +120,15 @@ window {
 	}
 }
 
+// TODO: Actually style this
+#volume {
+	&.on {
+		color: $gold;
+	}
+	&.muted {
+		color: $love;
+	}
+	&.off {
+		color: $muted;
+	}
+}
