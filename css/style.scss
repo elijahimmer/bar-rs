@@ -70,28 +70,40 @@ window {
 	min-width: 19px
 }
 
-@keyframes blinker {
-  50% {
-    color: $gold;
-  }
+@keyframes color-blinker {
+	0%   { color: $rose; }
+	100% { color: $love; }
+}
+@keyframes background-blinker {
+	0%   { background-color: $rose; }
+	100% { background-color: $love; }
 }
 
 #battery {
-	color: $pine;
-	.Full {
-		color: $gold;
+	#bat-outline { color: $pine; }
+
+	#bat-bar trough {
+		min-height: 8px;
+		min-width: 18px;
+		block.filled { background-color: $pine; }
 	}
-	.Warn {
-		color: $love;
-		animation: blinker 3s linear infinite;
-	}
-	.Critical {
-		color: $love;
-		animation: blinker 0.5s linear infinite;
-	}
+
 	#battery_charging {
 		font-size: 21px;
 		color: $gold;
+	}
+
+	&.Full {
+		#bat-outline { color: $gold }
+		#bat-bar trough block.filled { background-color: $gold; }
+	}
+	&.Warn {
+		#bat-outline { animation: color-blinker 3s linear infinite; }
+		#bat-bar trough block.filled { animation: background-blinker 3s linear infinite; }
+	}
+	&.Critical {
+		#bat-outline { animation: color-blinker 1s linear infinite; }
+		#bat-bar trough block.filled { animation: background-blinker 1s linear infinite; }
 	}
 }
 

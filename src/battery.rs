@@ -3,11 +3,12 @@ use crate::utils::{read_f64, read_trim};
 use anyhow::Result;
 use const_format::concatcp;
 use gtk::prelude::*;
-use gtk::{glib, Align, Application, Button, Fixed, Label};
+use gtk::{glib, Align, Application, Button, Fixed, Label, LevelBar, LevelBarMode};
 use std::time::Duration;
 
-const BATTERY_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
-const BATTERY_CLAMP: f64 = (BATTERY_ICONS.len() - 1) as f64;
+const BATTERY_ICON: &str = " ";
+//const BATTERY_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
+//const BATTERY_CLAMP: f64 = (BATTERY_ICONS.len() - 1) as f64;
 // TODO: I should make this not hard coded and read all of them.
 const BATTERY_FOLDER: &str = "/sys/class/power_supply/BAT0";
 const ENERGY_FULL_FILE: &str = concatcp!(BATTERY_FOLDER, "/energy_full");
@@ -17,8 +18,9 @@ const MAX_TRIES: usize = 10;
 
 pub struct Icons {
     container: Fixed,
+    //bat_outline: Label,
+    bat_bar: LevelBar,
     charging: Label,
-    battery: Label,
 }
 
 impl Icons {
@@ -28,16 +30,27 @@ impl Icons {
             .label("󱐋")
             .visible(false)
             .build();
-        let battery = Label::new(Some(BATTERY_ICONS[0]));
-        let container = Fixed::builder().name("battery").hexpand(false).build();
+        let bat_outline = Label::builder()
+            .name("bat-outline")
+            .label(BATTERY_ICON)
+            .build();
+        let bat_bar = LevelBar::builder()
+            .name("bat-bar")
+            .max_value(1.0)
+            .min_value(0.0)
+            .mode(LevelBarMode::Continuous)
+            .build();
 
-        container.put(&battery, 0.0, 0.0);
-        container.put(&charging, 5.0, 0.0);
+        let container = Fixed::builder().name("battery").hexpand(false).build();
+        container.put(&bat_outline, 0.0, 0.0);
+        container.put(&bat_bar, 2.5, 8.0);
+        container.put(&charging, 15.0, 0.0);
 
         Icons {
             container,
+            //bat_outline,
+            bat_bar,
             charging,
-            battery,
         }
     }
 }
@@ -68,7 +81,7 @@ pub fn new(_app: Application) -> Result<Button> {
         let (energy, status) = match get_battery_info() {
             Ok(res) => res,
             Err(err) => {
-                log::warn!("{err}");
+                log::warn!("Failed to read battery info, try {tries}: {err}");
 
                 tries += 1;
 
@@ -88,10 +101,6 @@ pub fn new(_app: Application) -> Result<Button> {
 
         let charge_percent = energy / full;
 
-        let i = (BATTERY_CLAMP * charge_percent)
-            .round()
-            .clamp(0.0, BATTERY_CLAMP) as usize;
-
         let status_list = if status == "Discharging" && charge_percent < 0.25 {
             if charge_percent < 0.1 {
                 ["Critical"]
@@ -102,8 +111,8 @@ pub fn new(_app: Application) -> Result<Button> {
             [status.as_str()]
         };
 
-        icons.battery.set_label(BATTERY_ICONS[i]);
-        icons.battery.set_css_classes(&status_list);
+        icons.bat_bar.set_value(charge_percent);
+        icons.container.set_css_classes(&status_list);
 
         icons.charging.set_visible(status == "Charging");
 
