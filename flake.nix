@@ -30,6 +30,7 @@
       naersk' = pkgs.callPackage naersk {};
 
       buildInputs = with pkgs; [
+        makeBinaryWrapper
         pkg-config
         glib
         gtk4
@@ -45,14 +46,17 @@
           license = licenses.mit;
           mainProgram = "bar-rs";
         };
+        
+        postInstall = ''
+          wrapProgram $out/bin/bar-rs \
+            --prefix PATH : ${nixpkgs.lib.makeBinPath [ nixpkgs.legacyPackages.${system}.pw-volume ]}
+        '';
       };
 
       devShells.default = pkgs.mkShell {
         buildInputs =
           buildInputs
           ++ (with pkgs; [
-            pw-volume
-
             cargo
             rustc
             clippy

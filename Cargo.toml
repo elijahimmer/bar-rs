@@ -9,8 +9,8 @@ hyprland = []
 dynamic_css = ["dep:grass"]
 
 [profile.release]
-strip = true
-lto = true
+#strip = true
+#lto = true
 
 [build-dependencies]
 grass = { version = "0.13.1", default-features = false }
@@ -19,7 +19,7 @@ grass = { version = "0.13.1", default-features = false }
 anyhow = "1.0.78"
 cfg-if = "1.0.0"
 const_format = "0.2.32"
-env_logger = "0.10.1"
+env_logger = "0.11.1"
 grass = { version = "0.13.1", default-features = false, optional = true }
 gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
 gtk-layer-shell = { version = "0.2.0", package = "gtk4-layer-shell" }
