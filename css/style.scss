@@ -49,25 +49,20 @@ window {
 		font-size: 20px;
 		margin: 0px 4px;
 	}
-	box {
-		margin: 0px 3px;
-	}
+	box { margin: 0px 3px; }
 }
 
 #volume {
 	font-size: 21px;
 	color: $iris;
-	min-width: 14px;
-	&.muted {
-		color: $love;
-	}
+	&.on 		{ color: $gold; }
+	&.muted { color: $love; }
+	&.off   { color: $muted; }
 }
 
 #brightness {
 	label { color: $iris; }
-	levelbar {
-		trough block.filled { background-color: $iris; }
-	}
+	levelbar trough block.filled { background-color: $iris; }
 }
 
 @keyframes color-blinker {
@@ -80,18 +75,13 @@ window {
 }
 
 #battery {
-	#bat-outline { color: $pine; }
-
-	levelbar trough {
-		min-height: 8px;
-		min-width: 18px;
-		block.filled { background-color: $pine; }
-	}
-
 	#battery_charging {
 		font-size: 21px;
 		color: $gold;
 	}
+
+	#bat-outline { color: $pine; }
+	levelbar trough  block.filled { background-color: $pine; }
 
 	&.Full {
 		#bat-outline { color: $gold }
@@ -112,16 +102,10 @@ window {
 	color: $love;
 }
 
-.metric-bar trough {
-	min-height: 20px;
-	min-width: 10px;
-	block { 
-		background-color: $pine;
-		border-radius: 3px;
-		&.filled { 
-			background-color: $love;
-			border-radius: 0px 0px 3px 3px;
-		}
+.metric-bar trough block { 
+	background-color: $pine;
+	&.filled { 
+		background-color: $love;
 	}
 }
 
@@ -147,14 +131,4 @@ window {
 }
 
 // TODO: Actually style this
-#volume {
-	&.on {
-		color: $gold;
-	}
-	&.muted {
-		color: $love;
-	}
-	&.off {
-		color: $muted;
-	}
-}
+

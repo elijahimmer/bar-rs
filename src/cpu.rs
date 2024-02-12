@@ -27,6 +27,8 @@ pub fn new(_app: Application) -> Result<Button> {
         .css_classes(["metric-bar"])
         .max_value(100.0)
         .min_value(0.0)
+        .width_request(10)
+        .height_request(20)
         .mode(LevelBarMode::Continuous)
         .orientation(Orientation::Vertical)
         .inverted(true)

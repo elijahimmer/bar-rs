@@ -38,10 +38,13 @@ impl Icons {
             .name("bat-bar")
             .max_value(1.0)
             .min_value(0.0)
+            .width_request(18)
+            .height_request(8)
             .mode(LevelBarMode::Continuous)
             .build();
 
         let container = Fixed::builder().name("battery").hexpand(false).build();
+
         container.put(&bat_outline, 0.0, 0.0);
         container.put(&bat_bar, 2.5, 8.0);
         container.put(&charging, 15.0, 0.0);

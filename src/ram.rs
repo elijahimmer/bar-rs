@@ -21,9 +21,12 @@ pub fn new(_app: Application) -> Result<Button> {
     let label = Label::new(Some(MEMORY_ICON));
 
     let bar = LevelBar::builder()
+        .css_classes(["metric-bar"])
         .name("ram-bar")
         .max_value(100.0)
         .min_value(0.0)
+        .width_request(10)
+        .height_request(20)
         .mode(LevelBarMode::Continuous)
         .orientation(Orientation::Vertical)
         .inverted(true)
