@@ -5,7 +5,7 @@ run:
 	cargo clippy --release
 	cargo build --release --features dynamic_css
 
-	-killall bar-rs
+	-killall bar-rs .bar-rs-wrapped
 
 	export RUST_LOG=trace; ./target/release/bar-rs 
 

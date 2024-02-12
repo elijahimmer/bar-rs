@@ -14,8 +14,6 @@ $hl_low: #21202e;
 $hl_med: #403d52;
 $hl_high: #403d52;
 
-@use 'sass:math';
-
 window {
 	color: $rose;
 	background: $surface;
@@ -66,8 +64,10 @@ window {
 }
 
 #brightness {
-	color: $iris;
-	min-width: 19px
+	label { color: $iris; }
+	levelbar {
+		trough block.filled { background-color: $iris; }
+	}
 }
 
 @keyframes color-blinker {
@@ -82,7 +82,7 @@ window {
 #battery {
 	#bat-outline { color: $pine; }
 
-	#bat-bar trough {
+	levelbar trough {
 		min-height: 8px;
 		min-width: 18px;
 		block.filled { background-color: $pine; }
@@ -95,15 +95,15 @@ window {
 
 	&.Full {
 		#bat-outline { color: $gold }
-		#bat-bar trough block.filled { background-color: $gold; }
+		levelbar trough block.filled { background-color: $gold; }
 	}
 	&.Warn {
 		#bat-outline { animation: color-blinker 3s linear infinite; }
-		#bat-bar trough block.filled { animation: background-blinker 3s linear infinite; }
+		levelbar trough block.filled { animation: background-blinker 3s linear infinite; }
 	}
 	&.Critical {
 		#bat-outline { animation: color-blinker 1s linear infinite; }
-		#bat-bar trough block.filled { animation: background-blinker 1s linear infinite; }
+		levelbar trough block.filled { animation: background-blinker 1s linear infinite; }
 	}
 }
 
