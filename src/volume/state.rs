@@ -1,8 +1,8 @@
-use super::run_command::run_command;
+use super::run_command;
 use super::VOLUME_COMMAND;
 
 const VOLUME_ICONS: [&str; 3] = ["󰕿", "󰖀", "󰕾"];
-const VOLUME_CLAMP: usize = VOLUME_ICONS.len();
+const VOLUME_CLAMP: usize = VOLUME_ICONS.len() - 1;
 const VOLUME_MUTED: &str = "󰝟";
 const VOLUME_OFF: &str = "󰸈";
 
@@ -37,17 +37,17 @@ impl VolumeState {
                     |index| {
                         let idx = index + MATCH_STR.len();
                         match str[idx..].find(',') {
-                    Some(jdx) => str[idx..idx + jdx]
-                        .parse()
-                        .map_or_else(|err| {
-                            log::trace!("Failed to parse percent from {VOLUME_COMMAND}. error={err}");
-                            Self::Volume(100)
-                        }, Self::Volume),
-                    None => {
-                      log::trace!("Failed to find percent's value from {VOLUME_COMMAND}. idx={idx}, str={str}");
-                      Self::Muted
-                    }
-                  }
+                            Some(jdx) => str[idx..idx + jdx]
+                                .parse()
+                                .map_or_else(|err| {
+                                    log::trace!("Failed to parse percent from {VOLUME_COMMAND}. error={err}");
+                                    Self::Volume(100)
+                                }, Self::Volume),
+                            None => {
+                              log::trace!("Failed to find percent's value from {VOLUME_COMMAND}. idx={idx}, str={str}");
+                              Self::Muted
+                            }
+                        }
                     },
                 )
             }

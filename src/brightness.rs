@@ -85,10 +85,8 @@ pub fn new(_app: Application) -> Result<Button> {
                 }
             };
 
-            let brightness = format!(
-                "{}",
-                (current_brightness + scroll_delta * dy).clamp(0.0, full) as usize
-            );
+        let brightness =
+            ((current_brightness + scroll_delta * dy).clamp(0.0, full) as usize).to_string();
 
             if let Err(err) = fs::write(BRIGHTNESS_FILE, &brightness) {
                 log::warn!(

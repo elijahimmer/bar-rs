@@ -56,6 +56,7 @@
       buildInputs =
         buildInputs
         ++ (with pkgs; [
+          pw-volume
           cargo
           rustc
           clippy
