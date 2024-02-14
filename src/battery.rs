@@ -47,7 +47,7 @@ impl Icons {
 
         container.put(&bat_outline, 0.0, 0.0);
         container.put(&bat_bar, 2.5, 8.0);
-        container.put(&charging, 15.0, 0.0);
+        container.put(&charging, 15.0, -1.0);
 
         Icons {
             container,

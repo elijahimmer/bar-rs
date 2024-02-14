@@ -32,8 +32,6 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &Application) {
-    log::trace!("Building UI");
-
     let end_box = gtk::Box::builder().name("end-box").build();
 
     log::trace!("Initalizing Widgets:");

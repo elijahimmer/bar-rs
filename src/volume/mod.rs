@@ -14,7 +14,7 @@ const SCROLL_DELTA: f64 = -10.0;
 pub fn new(_app: Application) -> Result<Button> {
     log::trace!("Initalizing Volume Widget");
 
-    let label = Label::builder().name("volume").build();
+    let label = Label::builder().width_request(19).name("volume").build();
 
     update_state(&label);
 
