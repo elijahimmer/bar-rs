@@ -71,6 +71,7 @@ pub fn new(_app: Application) -> Result<Button> {
         .flags(EventControllerScrollFlags::VERTICAL)
         .build();
 
+    // the amount to scroll per unit y
     let scroll_delta = full / 100.0;
 
     {
@@ -85,8 +86,8 @@ pub fn new(_app: Application) -> Result<Button> {
                 }
             };
 
-        let brightness =
-            ((current_brightness + scroll_delta * dy).clamp(0.0, full) as usize).to_string();
+            let brightness =
+                ((current_brightness + scroll_delta * dy).clamp(0.0, full) as usize).to_string();
 
             if let Err(err) = fs::write(BRIGHTNESS_FILE, &brightness) {
                 log::warn!(

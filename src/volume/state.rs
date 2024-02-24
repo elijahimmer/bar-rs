@@ -6,9 +6,9 @@ const VOLUME_CLAMP: usize = VOLUME_ICONS.len() - 1;
 const VOLUME_MUTED: &str = "󰝟";
 const VOLUME_OFF: &str = "󰸈";
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum VolumeState {
-    Volume(isize),
+    Volume(i32),
     Muted,
     Off,
 }
@@ -17,8 +17,7 @@ impl VolumeState {
     pub fn to_str(&self) -> &'static str {
         match self {
             Self::Volume(percent) => {
-                // TODO: Make sure this outputs how I want it to.
-                VOLUME_ICONS[((*percent as usize) / VOLUME_ICONS.len()).clamp(0, VOLUME_CLAMP)]
+                VOLUME_ICONS[((*percent as usize) / (100 / VOLUME_ICONS.len())).clamp(0, VOLUME_CLAMP)]
             }
             Self::Muted => VOLUME_MUTED,
             Self::Off => VOLUME_OFF,
@@ -37,7 +36,7 @@ impl VolumeState {
                     |index| {
                         let idx = index + MATCH_STR.len();
                         match str[idx..].find(',') {
-                            Some(jdx) => str[idx..idx + jdx]
+                            Some(jdx) => str[idx..(idx + jdx)]
                                 .parse()
                                 .map_or_else(|err| {
                                     log::trace!("Failed to parse percent from {VOLUME_COMMAND}. error={err}");

@@ -148,7 +148,7 @@ pub fn element() -> Result<Box> {
                             active_workspace = wk.clone();
                         }
                         Err(idx) => {
-                            //log::debug!("Workspace not found in list: wk_id={wk_id}, idx={idx}");
+                            log::debug!("Workspace not found in list: wk_id={wk_id}, idx={idx}");
                             // if not found in array, add it.
                             active_workspace = create_workspace(wk_id);
                             active_workspace
@@ -165,11 +165,11 @@ pub fn element() -> Result<Box> {
                 Event::CreateWorkspace(wk_id) => {
                     match workspaces.binary_search_by_key(&wk_id, |w| w.0) {
                         Ok(_idx) => {
-                            //log::debug!("Creating Workspace that already exists: wk_id={wk_id}");
+                            log::debug!("Creating Workspace that already exists: wk_id={wk_id}");
                             /*Workspace already exists, so don't do anything*/
                         }
                         Err(idx) => {
-                            //log::debug!("Creating Workspace: wk_id={wk_id} idx={idx}");
+                            log::debug!("Creating Workspace: wk_id={wk_id} idx={idx}");
                             let nwk = create_workspace(wk_id);
 
                             // This check should be redundent, but it doesn't hurt to keep it.
@@ -187,7 +187,7 @@ pub fn element() -> Result<Box> {
                 Event::DestroyWorkspace(wk_id) => {
                     match workspaces.binary_search_by_key(&wk_id, |w| w.0) {
                         Ok(idx) => {
-                            //log::debug!("Destroying Workspace: wk_id={wk_id}, idx={idx}");
+                            log::debug!("Destroying Workspace: wk_id={wk_id}, idx={idx}");
                             let (_, wk) = workspaces.remove(idx);
                             work_box.remove(&wk);
                         }
