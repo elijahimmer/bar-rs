@@ -9,7 +9,7 @@ use gtk::{
 };
 
 const VOLUME_COMMAND: &str = "pw-volume";
-const SCROLL_DELTA: f64 = -10.0;
+const SCROLL_DELTA: f64 = -5.0;
 
 pub fn new(_app: Application) -> Result<Button> {
     log::trace!("Initalizing Volume Widget");
@@ -30,23 +30,28 @@ pub fn new(_app: Application) -> Result<Button> {
         .flags(EventControllerScrollFlags::VERTICAL)
         .build();
 
-    controller.connect_scroll(move |_controller, _dx, dy| {
-        use std::cmp::Ordering;
+    {
+        let l = label.clone();
 
-        let delta_y = (SCROLL_DELTA * dy).round() as isize;
+        controller.connect_scroll(move |_controller, _dx, dy| {
+            let delta_y = (SCROLL_DELTA * dy).round() as isize;
 
-        let volume_delta = match delta_y.cmp(&0) {
-            Ordering::Greater => format!("+{}%", delta_y),
-            Ordering::Less => format!("{}%", delta_y),
-            Ordering::Equal => "+0%".to_owned(),
-        };
+            use std::cmp::Ordering;
+            let volume_delta = match delta_y.cmp(&0) {
+                Ordering::Greater => format!("+{}%", delta_y),
+                Ordering::Less => format!("-{}%", delta_y),
+                Ordering::Equal => "+0%".to_owned(),
+            };
 
-        if let Err(err) = run_command(&["change", volume_delta.as_str()]) {
-            log::warn!("{VOLUME_COMMAND} failed to execute. err={err}");
-        }
+            if let Err(err) = run_command(&["change", volume_delta.as_str()]) {
+                log::warn!("{VOLUME_COMMAND} failed to execute. err={err}");
+            }
 
-        glib::signal::Propagation::Stop
-    });
+            update_state(&l);
+
+            glib::signal::Propagation::Stop
+        });
+    }
 
     label.add_controller(controller);
 
@@ -83,9 +88,8 @@ pub fn update_state(label: &Label) {
 }
 
 use std::process::Command;
-use std::rc::Rc;
 
-pub fn run_command(args: &[&str]) -> Result<Rc<str>> {
+pub fn run_command(args: &[&str]) -> Result<Box<str>> {
     let out = Command::new(VOLUME_COMMAND).args(args).output()?;
 
     if out.status.success() {
