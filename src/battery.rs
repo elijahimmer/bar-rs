@@ -7,6 +7,7 @@ use gtk::{glib, Align, Application, Button, Fixed, Label, LevelBar, LevelBarMode
 use std::time::Duration;
 
 const BATTERY_ICON: &str = " ";
+const CHARGING_ICON: &str = "󱐋";
 //const BATTERY_ICONS: [&str; 10] = ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"];
 //const BATTERY_CLAMP: f64 = (BATTERY_ICONS.len() - 1) as f64;
 // TODO: I should make this not hard coded and read all of them.
@@ -27,7 +28,7 @@ impl Icons {
     pub fn new() -> Icons {
         let charging = Label::builder()
             .name("battery_charging")
-            .label("󱐋")
+            .label(CHARGING_ICON)
             .visible(false)
             .build();
         let bat_outline = Label::builder()
@@ -104,20 +105,20 @@ pub fn new(_app: Application) -> Result<Button> {
 
         let charge_percent = energy / full;
 
-        let status_list = if status == "Discharging" && charge_percent < 0.25 {
+        let status_list = if *status == *"Discharging" && charge_percent < 0.25 {
             if charge_percent < 0.1 {
                 ["Critical"]
             } else {
                 ["Warn"]
             }
         } else {
-            [status.as_str()]
+            [status.as_ref()]
         };
 
         icons.bat_bar.set_value(charge_percent);
         icons.container.set_css_classes(&status_list);
 
-        icons.charging.set_visible(status == "Charging");
+        icons.charging.set_visible(*status == *"Charging");
 
         glib::ControlFlow::Continue
     });
@@ -125,12 +126,12 @@ pub fn new(_app: Application) -> Result<Button> {
     Ok(button)
 }
 
-fn get_battery_info() -> Result<(f64, String)> {
+fn get_battery_info() -> Result<(f64, Box<str>)> {
     let status = {
-        let s = read_trim(BATTERY_STATUS_FILE)?;
+        let s: Box<str> = read_trim(BATTERY_STATUS_FILE)?;
 
-        if s == "Not charging" {
-            "Full".to_owned()
+        if *s == *"Not charging" {
+            "Full".into()
         } else {
             s
         }

@@ -21,7 +21,7 @@ pub fn map_workspace(workspace: i32) -> String {
             }
         },
         // I needed to split this because there is a reserved character between rho and sigma.
-        i @ 18..=24 => match char::from_u32(ALPHA_CHAR + i as u32 + 1) {
+        i @ 18..=24 => match char::from_u32((ALPHA_CHAR + 1) + i as u32) {
             Some(ch) => ch.to_string(),
             None => {
                 log::warn!("Failed to map workspace to symbol: i={i}");

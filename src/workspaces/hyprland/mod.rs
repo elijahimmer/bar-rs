@@ -4,7 +4,7 @@ pub use utils::*;
 use anyhow::{anyhow, Result};
 use gtk::prelude::*;
 use gtk::{glib, Box, Button, Label};
-use std::io::{ErrorKind::WouldBlock, Read};
+use std::io::{self, Read};
 use std::os::unix::net::UnixStream;
 use std::time::Duration;
 
@@ -22,12 +22,12 @@ pub fn element() -> Result<Box> {
 
 #[cfg(unix)]
 pub fn element() -> Result<Box> {
-    if HIS.to_string() == "" {
+    if HIS.is_empty() {
         return Err(anyhow!("Failed to create Hyprland Widget."));
     }
 
     log::trace!("Initalizing Hyprland Widget");
-    let mut hypr_listen_stream = UnixStream::connect(HYPR_SOCKET_LISTEN.to_string())?;
+    let mut hypr_listen_stream = UnixStream::connect(format!("/tmp/hypr/{}/.socket2.sock", *HIS))?;
 
     hypr_listen_stream.set_nonblocking(true)?;
 
@@ -79,7 +79,7 @@ pub fn element() -> Result<Box> {
         let size = match hypr_listen_stream.read(&mut buffer[last_index..]) {
             Ok(size) => size,
             Err(err) => {
-                if err.kind() != WouldBlock {
+                if err.kind() != io::ErrorKind::WouldBlock {
                     log::warn!("Failed to read from Hyprland IPC. error={err}");
                     error_counter += 1;
 
@@ -102,7 +102,7 @@ pub fn element() -> Result<Box> {
         let mut copy_over = false;
 
         while let Some(idx) = message[last_index..].find('\n') {
-            let m = &message[last_index..last_index + idx];
+            let m = &message[last_index..(last_index + idx)];
             last_index += idx + 1;
 
             if m.contains('\n') {
@@ -196,7 +196,7 @@ pub fn element() -> Result<Box> {
                         }
                     }
                 }
-                Event::Submap(map) => submap_label.set_label(map.as_str()),
+                Event::Submap(map) => submap_label.set_label(&map),
                 Event::None => {}
             };
 

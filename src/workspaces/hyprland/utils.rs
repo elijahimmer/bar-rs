@@ -11,28 +11,27 @@ lazy_static::lazy_static! {
         .ok_or(anyhow!(
             "Failed to get HYPRLAND_INSTANCE_SIGNATURE environment variable"
         )) {
-            Ok(var) => match var.into_string() {
-                Ok(string) => string,
-                Err(err) => {
-                    log::warn!("HYPRLAND_INSTANCE_SIGNATURE contains invalid unicode: {err:?}");
-                    String::new()
+            Ok(var) => match var.to_str() {
+                Some(val) => val.into(),
+                None => {
+                    log::warn!("Failed to read HYPRLAND_INSTANCE_SIGNATURE");
+                    "".into()
                 }
             },
             Err(err) => {
                 log::warn!("Failed to get HYPRLAND_INSTANCE_SIGNATURE. error={err}");
-                String::new()
+                "".into()
             }
         };
     pub static ref HYPR_SOCKET_COMMAND: String =
         format!("/tmp/hypr/{}/.socket.sock", *HIS);
-    pub static ref HYPR_SOCKET_LISTEN: String =
-        format!("/tmp/hypr/{}/.socket2.sock", *HIS);
 }
 
-pub fn send_hypr_command(command: String) -> Result<()> {
-    let mut hypr_command_stream = UnixStream::connect(HYPR_SOCKET_COMMAND.to_string())?;
+pub fn send_hypr_command(command: &str) -> Result<()> {
+    let mut hypr_command_stream = UnixStream::connect(HYPR_SOCKET_COMMAND.to_owned())?;
 
     hypr_command_stream.write_all(command.as_bytes())?;
+    hypr_command_stream.flush()?;
 
     let mut buf = [0; 16];
 
@@ -45,8 +44,8 @@ pub fn send_hypr_command(command: String) -> Result<()> {
     }
 }
 
-pub fn send_hypr_command_read(command: String) -> Result<String> {
-    let mut hypr_command_stream = UnixStream::connect(HYPR_SOCKET_COMMAND.to_string())?;
+pub fn send_hypr_command_read(command: &str) -> Result<Box<str>> {
+    let mut hypr_command_stream = UnixStream::connect(HYPR_SOCKET_COMMAND.to_owned())?;
 
     hypr_command_stream.write_all(command.as_bytes())?;
 
@@ -66,7 +65,7 @@ pub fn send_hypr_command_read(command: String) -> Result<String> {
     if res == "unknown request" {
         Err(anyhow!("Invaid Hyprland Command!"))
     } else {
-        Ok(res)
+        Ok(res.into())
     }
 }
 
@@ -79,8 +78,8 @@ pub fn create_workspace(n: i32) -> Workspace {
         .build();
 
     button.connect_clicked(move |_| {
-        if let Err(err) = send_hypr_command(format!("dispatch workspace {n_str}")) {
-            log::warn!("Failed to send/read command to/from Hyprland. error={err}");
+        if let Err(err) = send_hypr_command(format!("dispatch workspace {n_str}").as_str()) {
+            log::warn!("Failed to send command to Hyprland. error={err}");
         }
     });
 
@@ -90,26 +89,26 @@ pub fn create_workspace(n: i32) -> Workspace {
 const CMD_LINE_START: &str = "workspace ID ";
 const CMD_LINE_LEN: usize = CMD_LINE_START.len();
 pub fn jumpstart_workspaces() -> Result<Vec<Workspace>> {
-    let res = send_hypr_command_read("workspaces".into())?;
+    let res = send_hypr_command_read("workspaces")?;
 
-    let mut v = vec![];
+    let mut vec = vec![];
     for line in res.lines() {
         if line.starts_with(CMD_LINE_START) {
-            let pos = line[CMD_LINE_LEN..].find(' ').ok_or(anyhow!(""))?;
+            let pos = line[CMD_LINE_LEN..].find(' ').ok_or(anyhow!("Failed to parse Hyprland response."))?;
 
-            v.push(create_workspace(
-                line[CMD_LINE_LEN..CMD_LINE_LEN + pos].parse()?,
+            vec.push(create_workspace(
+                line[CMD_LINE_LEN..(CMD_LINE_LEN + pos)].parse()?,
             ));
         }
     }
 
-    v.sort_unstable_by_key(|e| e.0);
+    vec.sort_unstable_by_key(|e| e.0);
 
-    Ok(v)
+    Ok(vec)
 }
 
 pub fn jumpstart_active_workspace() -> Result<i32> {
-    let res = send_hypr_command_read("activeworkspace".into())?;
+    let res = send_hypr_command_read("activeworkspace")?;
 
     let pos = match res[CMD_LINE_LEN..].find(' ') {
         Some(p) => p,
@@ -117,15 +116,16 @@ pub fn jumpstart_active_workspace() -> Result<i32> {
             return Err(anyhow!("Failed to parse Hyprctl Response"));
         }
     };
-    Ok(res[CMD_LINE_LEN..CMD_LINE_LEN + pos].parse()?)
+    Ok(res[CMD_LINE_LEN..(CMD_LINE_LEN + pos)].parse()?)
 }
+
 
 #[derive(Debug, PartialEq)]
 pub enum Event {
     Workspace(i32),
     CreateWorkspace(i32),
     DestroyWorkspace(i32),
-    Submap(String),
+    Submap(Box<str>),
     None,
 }
 
@@ -134,7 +134,7 @@ pub fn parse_message(message: &str, val: &str) -> Result<Event> {
         "workspace" => Ok(Event::Workspace(val.parse()?)),
         "createworkspace" => Ok(Event::CreateWorkspace(val.parse()?)),
         "destroyworkspace" => Ok(Event::DestroyWorkspace(val.parse()?)),
-        "submap" => Ok(Event::Submap(val.to_string())),
+        "submap" => Ok(Event::Submap(val.into())),
         _ => Ok(Event::None),
     }
 }
