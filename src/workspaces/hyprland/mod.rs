@@ -22,12 +22,12 @@ pub fn element() -> Result<Box> {
 
 #[cfg(unix)]
 pub fn element() -> Result<Box> {
-    if HIS.is_empty() {
+    if HIS.is_empty() || XDG_RUNTIME_DIR.is_empty() {
         return Err(anyhow!("Failed to create Hyprland Widget."));
     }
 
-    log::trace!("Initalizing Hyprland Widget");
-    let mut hypr_listen_stream = UnixStream::connect(format!("/tmp/hypr/{}/.socket2.sock", *HIS))?;
+    log::trace!("Initializing Hyprland Widget");
+    let mut hypr_listen_stream = UnixStream::connect(HYPR_DIR.clone() + ".socket2.sock")?;
 
     hypr_listen_stream.set_nonblocking(true)?;
 

@@ -7,7 +7,25 @@ use std::io::prelude::*;
 use std::os::unix::net::UnixStream;
 
 lazy_static::lazy_static! {
-    pub static ref HIS: String = match env::var_os("HYPRLAND_INSTANCE_SIGNATURE")
+    pub static ref XDG_RUNTIME_DIR: String = match env::var_os("XDG_RUNTIME_DIR")
+            .ok_or(anyhow!(
+                "Failed to get XDG_RUNTIME_DIR environment variable"
+            )) {
+                Ok(var) => match var.to_str() {
+                    Some(val) => val.into(),
+                    None => {
+                        log::warn!("Failed to read XDG_RUNTIME_DIR");
+                        "".into()
+                    }
+                },
+                Err(err) => {
+                    log::warn!("Failed to get XDG_RUNTIME_DIR. error={err}");
+                    "".into()
+                }
+            };
+
+    pub static ref HIS: String =
+        match env::var_os("HYPRLAND_INSTANCE_SIGNATURE")
         .ok_or(anyhow!(
             "Failed to get HYPRLAND_INSTANCE_SIGNATURE environment variable"
         )) {
@@ -23,12 +41,13 @@ lazy_static::lazy_static! {
                 "".into()
             }
         };
-    pub static ref HYPR_SOCKET_COMMAND: String =
-        format!("/tmp/hypr/{}/.socket.sock", *HIS);
+
+    pub static ref HYPR_DIR: String =
+        format!("{}/hypr/{}/", *XDG_RUNTIME_DIR, *HIS);
 }
 
 pub fn send_hypr_command(command: &str) -> Result<()> {
-    let mut hypr_command_stream = UnixStream::connect(HYPR_SOCKET_COMMAND.to_owned())?;
+    let mut hypr_command_stream = UnixStream::connect(HYPR_DIR.to_owned() + ".socket.sock")?;
 
     hypr_command_stream.write_all(command.as_bytes())?;
     hypr_command_stream.flush()?;
@@ -45,7 +64,7 @@ pub fn send_hypr_command(command: &str) -> Result<()> {
 }
 
 pub fn send_hypr_command_read(command: &str) -> Result<Box<str>> {
-    let mut hypr_command_stream = UnixStream::connect(HYPR_SOCKET_COMMAND.to_owned())?;
+    let mut hypr_command_stream = UnixStream::connect(HYPR_DIR.to_owned() + ".socket.sock")?;
 
     hypr_command_stream.write_all(command.as_bytes())?;
 
@@ -94,7 +113,9 @@ pub fn jumpstart_workspaces() -> Result<Vec<Workspace>> {
     let mut vec = vec![];
     for line in res.lines() {
         if line.starts_with(CMD_LINE_START) {
-            let pos = line[CMD_LINE_LEN..].find(' ').ok_or(anyhow!("Failed to parse Hyprland response."))?;
+            let pos = line[CMD_LINE_LEN..]
+                .find(' ')
+                .ok_or(anyhow!("Failed to parse Hyprland response."))?;
 
             vec.push(create_workspace(
                 line[CMD_LINE_LEN..(CMD_LINE_LEN + pos)].parse()?,
@@ -118,7 +139,6 @@ pub fn jumpstart_active_workspace() -> Result<i32> {
     };
     Ok(res[CMD_LINE_LEN..(CMD_LINE_LEN + pos)].parse()?)
 }
-
 
 #[derive(Debug, PartialEq)]
 pub enum Event {

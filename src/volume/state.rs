@@ -17,7 +17,8 @@ impl VolumeState {
     pub fn to_str(&self) -> &'static str {
         match self {
             Self::Volume(percent) => {
-                VOLUME_ICONS[((*percent as usize) / (100 / VOLUME_ICONS.len())).clamp(0, VOLUME_CLAMP)]
+                VOLUME_ICONS
+                    [((*percent as usize) / (100 / VOLUME_ICONS.len())).clamp(0, VOLUME_CLAMP)]
             }
             Self::Muted => VOLUME_MUTED,
             Self::Off => VOLUME_OFF,
