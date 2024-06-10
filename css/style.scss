@@ -15,119 +15,119 @@ $hl_med: #403d52;
 $hl_high: #403d52;
 
 window {
-	color: $rose;
-	background: $surface;
+  color: $rose;
+  background: $surface;
+  font-size: 15px;
+  color: $rose;
 }
 
 #workspaces button {
-	margin: 0px 3px;
-	padding: 0px 6px;
-	&.active-workspace {
-		background-color: $pine;
-	}
-	&:hover {
-		background-color: $iris;
-		* {
-			color: $pine;
-		}
-	}
+  margin: 0px 3px;
+  padding: 0px 6px;
+  &.active-workspace {
+    background-color: $pine;
+  }
+  &:hover {
+    background-color: $iris;
+    * {
+      color: $pine;
+    }
+  }
 }
 
 #clock {
-	font-family: mono;
-	font-size: 15px;
-	color: $rose;
-	.spacer {
-		color: $foam;
-		margin: 0px 4px;
-	}
+  color: $rose;
+  .spacer {
+    color: $foam;
+    margin: 0px 4px;
+  }
 }
 
 #end-box {
-	margin-right: 10px;
-	.icon {
-		font-size: 20px;
-		margin: 0px 4px;
-	}
-	box { margin: 0px 3px; }
+  margin-right: 10px;
+  .icon {
+    font-size: 20px;
+    margin: 0px 4px;
+  }
+  box { margin: 0px 3px; }
 }
 
 #volume {
-	font-size: 21px;
-	color: $iris;
-	&.on 		{ color: $gold; }
-	&.muted { color: $love; }
-	&.off   { color: $muted; }
+    font-size: 21px;
+    color: $iris;
+    &.on    { color: $gold; }
+    &.muted { color: $love; }
+    &.off   { color: $muted; }
 }
 
 #brightness {
-	label { color: $iris; }
-	levelbar trough block.filled { background-color: $iris; }
+  label { color: $iris; }
+  levelbar trough block.filled { background-color: $iris; }
 }
 
 @keyframes color-blinker {
-	0%   { color: $rose; }
-	100% { color: $love; }
+  0%   { color: $rose; }
+  100% { color: $love; }
 }
 @keyframes background-blinker {
-	0%   { background-color: $rose; }
-	100% { background-color: $love; }
+  0%   { background-color: $rose; }
+  100% { background-color: $love; }
 }
 
 #battery {
-	#battery_charging {
-		font-size: 21px;
-		color: $gold;
-	}
-
-	#bat-outline { color: $pine; }
-	levelbar trough  block.filled { background-color: $pine; }
-
-	&.Full {
-		#bat-outline { color: $gold }
-		levelbar trough block.filled { background-color: $gold; }
-	}
-	&.Warn {
-		#bat-outline { animation: color-blinker 3s linear infinite; }
-		levelbar trough block.filled { animation: background-blinker 3s linear infinite; }
-	}
-	&.Critical {
-		#bat-outline { animation: color-blinker 1s linear infinite; }
-		levelbar trough block.filled { animation: background-blinker 1s linear infinite; }
-	}
+  #battery_charging {
+    font-size: 21px;
+    color: $gold;
+  }
+  
+  #bat-outline { color: $pine; }
+  levelbar trough  block.filled { background-color: $pine; }
+  
+  &.Full {
+    #bat-outline { color: $gold }
+    levelbar trough block.filled { background-color: $gold; }
+  }
+  &.Warn {
+    #bat-outline { animation: color-blinker 3s linear infinite; }
+    levelbar trough block.filled { animation: background-blinker 3s linear infinite; }
+  }
+  &.Critical {
+    #bat-outline { animation: color-blinker 1s linear infinite; }
+    levelbar trough block.filled { animation: background-blinker 1s linear infinite; }
+  }
 }
 
 .metric * {
-	font-size: 10px;
-	color: $love;
+  font-size: 10px;
+  color: $love;
 }
 
 .metric-bar trough block { 
-	background-color: $pine;
-	&.filled { 
-		background-color: $love;
-	}
+  background-color: $pine;
+  &.filled { 
+    background-color: $love;
+  }
 }
 
 #calendar {
-	background-color: $surface;
-	border-left: 2px solid $rose;
-	border-right: 2px solid $rose;
-	border-bottom: 2px solid $rose;
-	.view {
-		margin: 15px;
-		* {
-			margin: 4px;
-			border: 1px solid $pine;
-			label, button, stack {
-				border: hidden;
-			}
-			.today {
-				background-color: $iris;
-				color: $surface;
-			}
-		}
-	}
+  background-color: $surface;
+  border-left: 2px solid $rose;
+  border-right: 2px solid $rose;
+  border-bottom: 2px solid $rose;
+  .view {
+    margin: 15px;
+    * {
+      margin: 4px;
+      border: 1px solid $pine;
+      label, button, stack {
+        border: hidden;
+      }
+      .today {
+        background-color: $iris;
+        color: $surface;
+      }
+    }
+  }
 }
 
 // TODO: Actually style this

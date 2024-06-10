@@ -26,7 +26,7 @@ pub fn new(_app: Application) -> Result<Label> {
 
     let now = match DateTime::now_utc() {
         Ok(now) => now,
-        Err(err) => return Err(anyhow!("failed to get time. error={err}")),
+        Err(err) => return Err(anyhow!("failed to current time. error={err}")),
     };
 
     let text = label_from_time(now.difference(&updated_last));
@@ -35,11 +35,11 @@ pub fn new(_app: Application) -> Result<Label> {
 
     let l2 = label.clone();
 
-    glib::timeout_add_seconds_local(30, move || {
+    glib::timeout_add_seconds_local(15, move || {
         let now = match DateTime::now_utc() {
             Ok(now) => now,
             Err(err) => {
-                log::warn!("failed to get date time. error={err}");
+                log::warn!("failed to get current time. error={err}");
                 return glib::ControlFlow::Continue;
             }
         };
@@ -60,6 +60,9 @@ pub fn label_from_time(delta_time: glib::TimeSpan) -> String {
     }
 
     let days = delta_time.as_days();
+    if days > 7 {
+        return "UPDATE NOW!".to_string();
+    }
     match days.cmp(&1) {
         core::cmp::Ordering::Equal => return "1 Day Ago".to_string(),
         core::cmp::Ordering::Greater => return format!("{days} Days Ago"),

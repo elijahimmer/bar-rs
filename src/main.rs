@@ -11,7 +11,7 @@ pub mod workspaces;
 
 use gtk::gdk::Display;
 use gtk::prelude::*;
-use gtk::{glib, Application, ApplicationWindow};
+use gtk::{glib, Application, ApplicationWindow, Align};
 use gtk_layer_shell::LayerShell;
 
 fn main() -> glib::ExitCode {
@@ -41,7 +41,8 @@ fn main() -> glib::ExitCode {
 
 fn build_ui(app: &Application) {
     log::info!("Building UI");
-    let end_box = gtk::Box::builder().name("end-box").build();
+    let end_box = gtk::Box::builder()
+        .name("end-box").build();
 
     log::trace!("Initalizing Widgets:");
     append_res!(end_box; app; updated_last, cpu, ram, volume, brightness, battery);
@@ -62,6 +63,7 @@ fn build_ui(app: &Application) {
         .start_widget(&start_wgt)
         .center_widget(&center_wgt)
         .end_widget(&end_box)
+        .valign(Align::Center)
         .build();
 
     let window = ApplicationWindow::builder()
@@ -70,6 +72,7 @@ fn build_ui(app: &Application) {
         .default_height(25)
         .title("bar-rs")
         .name("main")
+        .valign(Align::Center)
         .build();
 
     log::trace!("Starting Layer Shell.");

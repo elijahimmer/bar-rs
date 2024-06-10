@@ -8,7 +8,7 @@ use std::time::Duration;
 pub fn new(app: Application) -> Button {
     log::trace!("Initalizing Time Widget");
 
-    let clock = crate::time::clock::Clock::new();
+    let clock = clock::Clock::new();
 
     let clock_button = Button::builder()
         .child(&clock.container)

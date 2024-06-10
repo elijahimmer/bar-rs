@@ -213,6 +213,3 @@ pub fn element() -> Result<Box> {
 
     Ok(main)
 }
-
-#[cfg(test)]
-mod test {}
