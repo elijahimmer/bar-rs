@@ -4,10 +4,10 @@ pub mod cpu;
 pub mod css;
 pub mod ram;
 pub mod time;
+pub mod updated_last;
 pub mod utils;
 pub mod volume;
 pub mod workspaces;
-pub mod updated_last;
 
 use gtk::gdk::Display;
 use gtk::prelude::*;
@@ -31,7 +31,8 @@ fn main() -> glib::ExitCode {
         glib::OptionFlags::OPTIONAL_ARG,
         glib::OptionArg::Int64,
         "Unix timestamp of last update to system",
-        None);
+        None,
+    );
 
     application.connect_activate(build_ui);
 
