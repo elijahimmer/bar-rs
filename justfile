@@ -2,12 +2,12 @@ alias r := run
 alias n := nix
 
 run:
-	cargo clippy --release
-	cargo build --release --features dynamic_css
+	cargo clippy
+	cargo build
 
 	-killall bar-rs .bar-rs-wrapped
 
-	RUST_LOG=trace ./target/release/bar-rs 
+	RUST_LOG=trace ./target/debug/bar-rs 
 
 nix:
 	nix flake check --all-systems

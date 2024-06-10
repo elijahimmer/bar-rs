@@ -56,29 +56,29 @@ pub fn new(_app: Application) -> Result<Label> {
 
 pub fn label_from_time(delta_time: glib::TimeSpan) -> String {
     if delta_time.as_seconds() < 0 {
-        return format!("The Future?");
+        return "The Future?".to_string();
     }
 
     let days = delta_time.as_days();
     match days.cmp(&1) {
-        core::cmp::Ordering::Equal => return format!("1 Day Ago"),
+        core::cmp::Ordering::Equal => return "1 Day Ago".to_string(),
         core::cmp::Ordering::Greater => return format!("{days} Days Ago"),
         core::cmp::Ordering::Less => {}
     }
 
     let hours = delta_time.as_hours();
     match hours.cmp(&1) {
-        core::cmp::Ordering::Equal => return format!("1 Hour Ago"),
+        core::cmp::Ordering::Equal => return "1 Hour Ago".to_string(),
         core::cmp::Ordering::Greater => return format!("{hours} Hours Ago"),
         core::cmp::Ordering::Less => {}
     }
 
     let minutes = delta_time.as_minutes();
     match minutes.cmp(&1) {
-        core::cmp::Ordering::Equal => return format!("1 Minute Ago"),
+        core::cmp::Ordering::Equal => return "1 Minute Ago".to_string(),
         core::cmp::Ordering::Greater => return format!("{minutes} Minutes Ago"),
         core::cmp::Ordering::Less => {}
     }
 
-    return format!("Now");
+    "Now".to_string()
 }
