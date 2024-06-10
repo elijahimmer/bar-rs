@@ -7,7 +7,7 @@ run:
 
 	-killall bar-rs .bar-rs-wrapped
 
-	export RUST_LOG=trace; ./target/release/bar-rs 
+	RUST_LOG=trace ./target/release/bar-rs 
 
 nix:
 	nix flake check --all-systems

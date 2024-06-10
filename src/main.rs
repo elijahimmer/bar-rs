@@ -8,7 +8,6 @@ pub mod utils;
 pub mod volume;
 pub mod workspaces;
 pub mod updated_last;
-//pub mod wttr;
 
 use gtk::gdk::Display;
 use gtk::prelude::*;
@@ -26,13 +25,21 @@ fn main() -> glib::ExitCode {
         .application_id("me.eimmer.bar-rs")
         .build();
 
-    log::info!("Building UI");
+    application.add_main_option(
+        "updated-last",
+        b'U'.into(),
+        glib::OptionFlags::OPTIONAL_ARG,
+        glib::OptionArg::Int64,
+        "Unix timestamp of last update to system",
+        None);
+
     application.connect_activate(build_ui);
 
     application.run()
 }
 
 fn build_ui(app: &Application) {
+    log::info!("Building UI");
     let end_box = gtk::Box::builder().name("end-box").build();
 
     log::trace!("Initalizing Widgets:");
@@ -50,7 +57,6 @@ fn build_ui(app: &Application) {
     let center_wgt = time::new(app.clone());
 
     log::trace!("Initalizing Window");
-
     let main_box = gtk::CenterBox::builder()
         .start_widget(&start_wgt)
         .center_widget(&center_wgt)
@@ -59,12 +65,10 @@ fn build_ui(app: &Application) {
 
     let window = ApplicationWindow::builder()
         .application(app)
+        .child(&main_box)
+        .default_height(25)
         .title("bar-rs")
         .name("main")
-        .decorated(false)
-        .show_menubar(false)
-        .default_height(25)
-        .child(&main_box)
         .build();
 
     log::trace!("Starting Layer Shell.");
@@ -75,12 +79,18 @@ fn build_ui(app: &Application) {
     window.set_anchor(gtk_layer_shell::Edge::Top, true);
     window.set_anchor(gtk_layer_shell::Edge::Bottom, false);
 
+    log::info!("Window Presenting");
+    window.present();
+
     gtk::style_context_add_provider_for_display(
-        &Display::default().expect("Display not found."),
+        &match Display::default() {
+            Some(val) => val,
+            None => {
+                log::error!("display now found!");
+                return;
+            }
+        },
         &css::css(),
         0,
     );
-
-    log::info!("Window Presenting");
-    window.present();
 }
