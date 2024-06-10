@@ -1,6 +1,6 @@
 [package]
 name = "bar-rs"
-version = "2024.2.2"
+version = "2024.6.10"
 edition = "2021"
 
 [features]
