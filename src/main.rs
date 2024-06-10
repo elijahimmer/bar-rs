@@ -7,7 +7,7 @@ pub mod time;
 pub mod utils;
 pub mod volume;
 pub mod workspaces;
-pub mod last_update;
+pub mod updated_last;
 //pub mod wttr;
 
 use gtk::gdk::Display;
@@ -36,7 +36,7 @@ fn build_ui(app: &Application) {
     let end_box = gtk::Box::builder().name("end-box").build();
 
     log::trace!("Initalizing Widgets:");
-    append_res!(end_box; app; cpu, ram, volume, brightness, battery, last_update);
+    append_res!(end_box; app; updated_last, cpu, ram, volume, brightness, battery);
 
     let start_wgt = match workspaces::element() {
         Ok(a) => a,
