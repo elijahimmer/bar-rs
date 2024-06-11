@@ -5,7 +5,7 @@ macro_rules! append_res {
     ($box:ident; $app:ident; $mod:ident) => {
         match $mod::new($app.clone()) {
             Ok(wgt) => $box.append(&wgt),
-            Err(err) => log::error!("Widget {} Disabled. error={err}", stringify!($mod)),
+            Err(err) => log::error!("{} widget disabled. error={err}", stringify!($mod)),
         }
     };
     ($box:ident; $app:ident; $mod:ident, $($xs:ident),+) => {

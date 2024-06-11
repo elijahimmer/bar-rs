@@ -41,7 +41,7 @@ pub fn new(app: Application) -> Button {
     clock_button.connect_clicked(move |_button| {
         match glib::DateTime::now_local() {
             Ok(date) => calender.select_day(&date),
-            Err(err) => log::warn!("Failed to get current date! error={err}"),
+            Err(err) => log::warn!("Failed to get current date. error={err}"),
         };
 
         let visible = window.get_visible();
@@ -54,11 +54,8 @@ pub fn new(app: Application) -> Button {
     });
 
     glib::timeout_add_local(Duration::from_millis(250), move || {
-        match clock.update() {
-            Ok(()) => {}
-            Err(err) => {
-                log::warn!("Clock failed to update time. error={err}")
-            }
+        if let Err(err) = clock.update() {
+            log::warn!("Clock failed to update time. error={err}");
         };
 
         glib::ControlFlow::Continue

@@ -7,7 +7,7 @@ run:
     
     -killall bar-rs .bar-rs-wrapped
     
-    RUST_LOG=trace ./target/debug/bar-rs -U 100000000
+    RUST_LOG=trace ./target/debug/bar-rs -U `date +%s`
 
 nix:
     nix flake check --all-systems

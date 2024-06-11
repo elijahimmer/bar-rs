@@ -16,8 +16,8 @@ impl Clock {
         let hours = Label::new(Some("00"));
         let minutes = Label::new(Some("00"));
         let seconds = Label::new(Some("00"));
-        let spacer1 = Label::builder().css_classes(["spacer"]).label("").build();
-        let spacer2 = Label::builder().css_classes(["spacer"]).label("").build();
+        let spacer1 = Label::builder().css_classes(["clock-spacer"]).label("").build();
+        let spacer2 = Label::builder().css_classes(["clock-spacer"]).label("").build();
 
         let container = Box::new(gtk::Orientation::Horizontal, 0);
 

@@ -18,6 +18,7 @@ window {
   color: $rose;
   background: $surface;
   font-size: 15px;
+  font-family: mono;
   color: $rose;
 }
 
@@ -37,7 +38,7 @@ window {
 
 #clock {
   color: $rose;
-  .spacer {
+  .clock-spacer {
     color: $foam;
     margin: 0px 4px;
   }
@@ -53,11 +54,11 @@ window {
 }
 
 #volume {
-    font-size: 21px;
-    color: $iris;
-    &.on    { color: $gold; }
-    &.muted { color: $love; }
-    &.off   { color: $muted; }
+  font-size: 21px;
+  color: $iris;
+  &.on    { color: $gold; }
+  &.muted { color: $love; }
+  &.off   { color: $muted; }
 }
 
 #brightness {
@@ -81,7 +82,7 @@ window {
   }
   
   #bat-outline { color: $pine; }
-  levelbar trough  block.filled { background-color: $pine; }
+  levelbar trough block.filled { background-color: $pine; }
   
   &.Full {
     #bat-outline { color: $gold }
@@ -129,6 +130,3 @@ window {
     }
   }
 }
-
-// TODO: Actually style this
-
