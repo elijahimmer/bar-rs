@@ -23,6 +23,7 @@ window {
 }
 
 #workspaces button {
+  font-size: 16px;
   margin: 0px 3px;
   padding: 0px 6px;
   &.active-workspace {
@@ -76,12 +77,14 @@ window {
 }
 
 #battery {
+  font-size: 21px;
   #battery_charging {
-    font-size: 21px;
     color: $gold;
   }
   
-  #bat-outline { color: $pine; }
+  #bat-outline { 
+    color: $pine;
+  }
   levelbar trough block.filled { background-color: $pine; }
   
   &.Full {

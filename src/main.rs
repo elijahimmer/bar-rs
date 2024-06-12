@@ -28,7 +28,7 @@ fn main() -> glib::ExitCode {
     application.add_main_option(
         "updated-last",
         b'U'.into(),
-        glib::OptionFlags::OPTIONAL_ARG,
+        glib::OptionFlags::NONE,
         glib::OptionArg::Int64,
         "Unix timestamp of last update to system",
         None,

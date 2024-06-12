@@ -40,8 +40,9 @@ impl Icons {
             .max_value(1.0)
             .min_value(0.0)
             .width_request(18)
-            .height_request(8)
+            .height_request(10)
             .mode(LevelBarMode::Continuous)
+            .valign(Align::Start)
             .build();
 
         let container = Fixed::builder().name("battery").hexpand(false).build();
