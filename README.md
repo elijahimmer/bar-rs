@@ -1,4 +1,8 @@
+## New Project: [Walrus-Bar](https://github.com/elijahimmer/wlrs-bar) like this, but without GTK (it's much nicer)
+
 # bar-rs (name needs work)
+
+
 it's a status bar... in rust...
 
 License: MIT
